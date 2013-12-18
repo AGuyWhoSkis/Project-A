@@ -1,0 +1,8 @@
+name: Artillery
+author: aguywhoskis
+version: 0.02
+main: me.aguywhoskis.artillery.Artillery
+commands:
+  a:
+    description: Base cmd
+    usage: /a
