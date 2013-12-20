@@ -50,10 +50,12 @@ public class BlockHandle implements Listener {
 				e.getPlayer().updateInventory();
 				return;
 			}
-			Location loc = e.getBlock().getLocation();
-			if (loc.distance(WORLD.blueSpawn) < 12 || loc.distance(WORLD.redSpawn) < 12) {
-				e.setCancelled(true);
-				e.getPlayer().sendMessage(ChatColor.RED+"You can't do that here.");
+			if (PLUGIN.gameMode != 1) {
+				Location loc = e.getBlock().getLocation();
+				if (loc.distance(WORLD.blueSpawn) < 12 || loc.distance(WORLD.redSpawn) < 12) {
+					e.setCancelled(true);
+					e.getPlayer().sendMessage(ChatColor.RED+"You can't do that here.");
+				}
 			}
 		}
 		if (PLUGIN.canBuild == true) {

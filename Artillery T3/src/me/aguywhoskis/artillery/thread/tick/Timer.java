@@ -23,7 +23,7 @@ public class Timer extends BukkitRunnable{
 	
 	private static int seconds = 120;
 	private List<Integer> sigSeconds = Arrays.asList(120,90,60,30,15,10,5,3,2,1);
-	private List<Integer> sigMapSeconds = Arrays.asList(70,45,17);
+	private List<Integer> sigMapSeconds = Arrays.asList(70,45,13);
 	
 	private static String prefix = "&0[&2!&0]&r ";
 	
@@ -176,6 +176,8 @@ public class Timer extends BukkitRunnable{
 			s = "1 minute";
 		} else if (secs == 1) {
 			s = "1 second";
+		} else if (secs < 120 && secs > 60) {
+			s = "1 minute "+Integer.toString(secs)+" seconds";
 		} else {
 			s = Integer.toString(secs)+" seconds";
 		}

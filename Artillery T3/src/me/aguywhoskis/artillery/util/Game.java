@@ -6,8 +6,8 @@ import me.aguywhoskis.artillery.thread.ChangeMode;
 import me.aguywhoskis.artillery.thread.CleanUp;
 import me.aguywhoskis.artillery.thread.tick.Forfeit;
 import me.aguywhoskis.artillery.thread.tick.Timer;
+import net.minecraft.util.org.apache.commons.io.FileUtils;
 
-import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;

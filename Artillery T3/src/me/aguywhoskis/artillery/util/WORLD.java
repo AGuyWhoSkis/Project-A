@@ -8,7 +8,7 @@ import java.util.Collections;
 
 import me.aguywhoskis.artillery.Artillery;
 
-import org.apache.commons.io.FileUtils;
+import net.minecraft.util.org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;

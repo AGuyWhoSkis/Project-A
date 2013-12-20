@@ -31,6 +31,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -38,6 +39,7 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.Vector;
@@ -508,4 +510,14 @@ public class PlayerHandle implements Listener {
 	public void onPickUp(PlayerPickupItemEvent e) {
 		e.setCancelled(true);
 	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onCommand(ServerCommandEvent e) {
+		String cmd = e.getCommand();
+		if (cmd.contains("save-on") || cmd.contains("save-all")) {
+			e.getSender().sendMessage("Please use the in game command '/a save' instead.");
+			e.setCommand("");
+		}
+	}
+	
 }
