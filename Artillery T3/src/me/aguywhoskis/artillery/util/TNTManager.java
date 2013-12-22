@@ -228,7 +228,7 @@ public class TNTManager implements Listener {
 								}
 								// }
 							} else {
-								if (bl.getLocation().distance(WORLD.blueSpawn) < 12 || bl.getLocation().distance(WORLD.redSpawn) < 12) {
+								if (bl.getLocation().distance(WORLD.blueSpawn) < 20 || bl.getLocation().distance(WORLD.redSpawn) < 20) {
 									e.blockList().remove(bl);
 								}
 							}

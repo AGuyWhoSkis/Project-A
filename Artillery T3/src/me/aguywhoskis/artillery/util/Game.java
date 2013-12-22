@@ -268,28 +268,28 @@ public class Game {
 				int blueLength = teamBlue.size();
 				if (redLength > blueLength) {
 					teamBlue.add(name);
-					p.setDisplayName(ChatColor.BLUE +name+ChatColor.GRAY);
+					p.setDisplayName(ChatColor.BLUE +name+ChatColor.WHITE);
 				} else if (blueLength > redLength) {
 					teamRed.add(name);
-					p.setDisplayName(ChatColor.RED +name+ChatColor.GRAY);
+					p.setDisplayName(ChatColor.RED +name+ChatColor.WHITE);
 				} else if (blueLength == redLength) {
 					int r = 1 +(int)(Math.random()*(2));
 					if (r == 1) {
 						teamRed.add(name);
-						p.setDisplayName(ChatColor.RED +name+ChatColor.GRAY);
+						p.setDisplayName(ChatColor.RED +name+ChatColor.WHITE);
 					} else if (r == 2) {
 						teamBlue.add(name);
-						p.setDisplayName(ChatColor.BLUE +name+ChatColor.GRAY);
+						p.setDisplayName(ChatColor.BLUE +name+ChatColor.WHITE);
 					} else {
 						teamBlue.add(name);
-						p.setDisplayName(ChatColor.BLUE +name+ChatColor.GRAY);
+						p.setDisplayName(ChatColor.BLUE +name+ChatColor.WHITE);
 					}
 				}
 			} else {
-				p.setDisplayName(ChatColor.RED +name+ChatColor.GRAY);
+				p.setDisplayName(ChatColor.RED +name+ChatColor.WHITE);
 			}
 		} else {
-			p.setDisplayName(ChatColor.BLUE +name+ChatColor.GRAY);
+			p.setDisplayName(ChatColor.BLUE +name+ChatColor.WHITE);
 		}
 	}
 	

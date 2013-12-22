@@ -28,12 +28,8 @@ import java.util.ArrayList;
 
 
 public class Artillery extends JavaPlugin {
-
-
-	
 	
 	public void onEnable() {
-		Util.messageServer("test");
 		File schemDir = new File(getDataFolder(), "cannons");
 		File playerDir = new File (getDataFolder(), "players");
 		schemDir.mkdirs();

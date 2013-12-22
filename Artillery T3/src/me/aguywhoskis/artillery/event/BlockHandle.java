@@ -143,7 +143,7 @@ public class BlockHandle implements Listener {
 			PLUGIN.turretDelay.remove(loc);
 			return;
 		}
-		if (loc.distance(WORLD.blueSpawn) < 12 || loc.distance(WORLD.redSpawn) < 12) {
+		if (loc.distance(WORLD.blueSpawn) < 20 || loc.distance(WORLD.redSpawn) < 20) {
 			e.setCancelled(true);
 			e.getPlayer().sendMessage(ChatColor.RED+"You can't do that here.");
 		}

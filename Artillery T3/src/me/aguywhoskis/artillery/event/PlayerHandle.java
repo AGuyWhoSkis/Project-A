@@ -31,7 +31,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -83,6 +84,7 @@ public class PlayerHandle implements Listener {
 
 								Location from = main;
 								Location to = p.getTargetBlock(null, 200).getLocation();
+								p.getLastTwoTargetBlocks(null, 200);
 								Vector mid = TNTManager.getTntVelocity(from,to, 15);
 								mid.multiply(1.45);
 								TNTManager.spawnTNT(p.getName(), main, idenLoc ,mid, 51, 50);
@@ -190,10 +192,10 @@ public class PlayerHandle implements Listener {
 
 	private String objPrefix = (ChatColor.BLACK+"["+ChatColor.DARK_GREEN+"Objective"+ChatColor.BLACK+"] "+ChatColor.RESET);
 	
-	@EventHandler(priority = EventPriority.NORMAL)
+	@EventHandler
 	public void addPlayer(PlayerJoinEvent e) {
 		String p = e.getPlayer().getName();
-		File directory = new File(Bukkit.getPluginManager().getPlugin("Artillery").getDataFolder(), "players");
+		File directory = new File(myplugin.getDataFolder(), "players");
 		directory.mkdir();
 		File f = new File(directory, p + ".txt");
 		if (!f.exists()) {
@@ -224,9 +226,7 @@ public class PlayerHandle implements Listener {
 		ScoreBoard.create(pl);
 		
 		
-		if (Forfeit.timer.containsKey(p)) {
-			Forfeit.timer.remove(p);
-		}
+
 		
 		
 		
@@ -235,17 +235,18 @@ public class PlayerHandle implements Listener {
 				Game.assignTeam(pl);
 				Util.giveInventory(pl);
 			} else if (Game.teamBlue.contains(p)) {
-				pl.setDisplayName(ChatColor.BLUE +pl.getName()+ChatColor.GRAY);
+				pl.setDisplayName(ChatColor.BLUE +pl.getName()+ChatColor.WHITE);
 			} else if (Game.teamRed.contains(p)) {
-				pl.setDisplayName(ChatColor.RED +pl.getName()+ChatColor.GRAY);
+				pl.setDisplayName(ChatColor.RED +pl.getName()+ChatColor.WHITE);
 			}
-
-			if (Game.teamBlue.contains(p)) {
-				pl.teleport(WORLD.blueSpawn);
-				Bukkit.getLogger().info("2: Teleported " + pl.getName() + " to "+ WORLD.blueSpawn);
-			} else {
-				pl.teleport(WORLD.redSpawn);
-				Bukkit.getLogger().info("2: Teleported " + pl.getName() + " to "+ WORLD.redSpawn);
+			if (!Forfeit.timer.containsKey(p)) {
+				Util.logInfo("does not contain key");
+				if (Game.teamBlue.contains(p)) {
+					pl.teleport(WORLD.blueSpawn);
+				} else {
+					pl.teleport(WORLD.redSpawn);
+				}
+				
 			}
 			if (PLUGIN.gameMode == 1) {
 				//lobby
@@ -262,16 +263,21 @@ public class PlayerHandle implements Listener {
 				pl.sendMessage(objPrefix + ChatColor.GREEN+ "The game is over.");
 				}
 			}
-
+		
+			if (Forfeit.timer.containsKey(p)) {
+				Forfeit.timer.remove(p);
+			}
+			
 		} else {
 			Timer.update();
 			pl.teleport(WORLD.main.getSpawnLocation());
+			Util.logInfo("2");
 			pl.getInventory().clear();
 			Util.messageServer(prefix+ChatColor.GOLD+p+ChatColor.RED+" has joined! "+ChatColor.GOLD+"("+ChatColor.GREEN+Bukkit.getOnlinePlayers().length+"/"+Bukkit.getServer().getMaxPlayers()+ChatColor.GOLD+")");
 		}
 	}
 
-	@EventHandler(priority = EventPriority.NORMAL)
+	@EventHandler
 	public void onDeath(PlayerDeathEvent e) {
 		e.setDroppedExp(0);
 		e.getDrops().clear();
@@ -382,7 +388,7 @@ public class PlayerHandle implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.NORMAL)
+	@EventHandler
 	public void onPVP(EntityDamageByEntityEvent e) {
 
 		if (e.getEntity() instanceof Player) {
@@ -456,20 +462,19 @@ public class PlayerHandle implements Listener {
 
 	@EventHandler
 	public void onMove(PlayerMoveEvent e) {
-		if (PLUGIN.gameMode == 2) {
-			Location to = e.getTo();
+		Location to = e.getTo();
+		
+		Block wallCheck = Bukkit.getWorld(WORLD.map.getName()).getBlockAt(to.getBlockX(),0,to.getBlockZ());
+		
+		if ((PLUGIN.gameMode == 2 && wallCheck.getType().equals(Material.ENDER_CHEST)) || wallCheck.getTypeId() == 36) {
 			
-			Block wallCheck = Bukkit.getWorld(WORLD.map.getName()).getBlockAt(to.getBlockX(),0,to.getBlockZ());
-			
-			if (wallCheck.getType().equals(Material.ENDER_CHEST)) {
-				e.getPlayer().setVelocity(new Vector(0, e.getPlayer().getVelocity().getY(), 0));
-				e.getPlayer().teleport(e.getFrom());
-				e.getPlayer().sendMessage(ChatColor.RED + "An invisible barrier stops you.");
-			}
+			e.getPlayer().setVelocity(new Vector(0, e.getPlayer().getVelocity().getY(), 0));
+			e.getPlayer().teleport(e.getFrom());
+			e.getPlayer().sendMessage(ChatColor.RED + "An invisible barrier stops you.");
 		}
 	}
 
-	@EventHandler(priority = EventPriority.NORMAL)
+	@EventHandler
 	public void onRespawn(PlayerRespawnEvent e) {
 		if (PLUGIN.gameMode != 1) {
 			Player p = e.getPlayer();
@@ -482,7 +487,7 @@ public class PlayerHandle implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.NORMAL)
+	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
 		if (PLUGIN.gameMode != 0) {
 			Forfeit.timer.put(e.getPlayer().getName(), 30);
@@ -491,7 +496,7 @@ public class PlayerHandle implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.NORMAL)
+	@EventHandler
 	public void onFoodLoss(FoodLevelChangeEvent e) {
 		Player p = (Player) e.getEntity();
 		p.setFoodLevel(20);
@@ -518,6 +523,11 @@ public class PlayerHandle implements Listener {
 			e.getSender().sendMessage("Please use the in game command '/a save' instead.");
 			e.setCommand("");
 		}
+	}
+	
+	@EventHandler
+	public void onChat(AsyncPlayerChatEvent e) {
+		e.setMessage(ChatColor.GRAY+e.getMessage());
 	}
 	
 }
