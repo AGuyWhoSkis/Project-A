@@ -11,14 +11,11 @@ import me.aguywhoskis.artillery.util.WORLD;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class Timer extends BukkitRunnable{
 	private static int taskId;
 	private static boolean paused = false;
-	private static boolean stopped = false;
-	private static boolean willStart = false;
 	private static boolean shortened = false;
 	
 	private static int seconds = 120;
@@ -33,8 +30,7 @@ public class Timer extends BukkitRunnable{
 	
 	public void reset() {
 		paused = false;
-		stopped = false;
-		willStart = false;
+
 		shortened = false;
 		seconds = 120;
 	}
@@ -58,18 +54,16 @@ public class Timer extends BukkitRunnable{
 		}
 	}
 	
-	public Timer(Plugin p) {
+	public Timer() {
 		
 	}
 
 	public static void start() {
-		taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(Artillery.plugin, new Timer(Artillery.plugin), 20L, 20L);
-		stopped = false;
+		taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(Artillery.plugin, new Timer(), 20L, 20L);
 	}
 	
 	public static void stop() {
 		Bukkit.getScheduler().cancelTask(taskId);
-		stopped = true;
 	}
 	
 	public static void pause() {
@@ -94,14 +88,13 @@ public class Timer extends BukkitRunnable{
 			//Minimum amount of players
 			if (paused) {
 				resume();
-				willStart = true;
+
 			}
 			
 		} else {
 			//Less than minimum amount of players
 			if (!paused) {
 				pause();
-				willStart = false;
 			}
 			if (shortened) {
 				set(seconds+15, true, "l");
@@ -110,8 +103,8 @@ public class Timer extends BukkitRunnable{
 		}
 		if (!shortened) {
 			if (n == max) {
-				if (seconds > 20) {
-					set(20, true, "s");
+				if (seconds > 45) {
+					set(45, true, "s");
 					shortened = true;
 				}
 			}
@@ -130,20 +123,19 @@ public class Timer extends BukkitRunnable{
 			//Minimum amount of players
 			if (paused) {
 				resume();
-				willStart = true;
+
 			}
 			
 		} else {
 			//Less than minimum amount of players
 			if (!paused) {
 				pause();
-				willStart = false;
 			}
 		}
 		if (!shortened) {
 			if (n == max) {
-				if (seconds > 20) {
-					set(20, true, "s");
+				if (seconds > 45) {
+					set(45, true, "s");
 					shortened = true;
 				}
 			}

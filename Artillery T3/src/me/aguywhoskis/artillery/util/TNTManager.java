@@ -1,5 +1,6 @@
 package me.aguywhoskis.artillery.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import me.aguywhoskis.artillery.Artillery;
@@ -103,6 +104,7 @@ public class TNTManager implements Listener {
 					int type = Integer.parseInt(split[1]);
 
 					if (e.blockList() != null) {
+						ArrayList<Block> toRemove = new ArrayList<Block>();
 						for (Block bl : e.blockList()) {
 							if (bl.getType() == Material.BEACON) {
 
@@ -147,7 +149,7 @@ public class TNTManager implements Listener {
 										}
 									} else if (Game.teamBlue.contains(shooter.getName())) {
 										// cancel
-										e.blockList().remove(bl);
+										toRemove.add(bl);
 										shooter.sendMessage(ChatColor.RED+ "Don't destroy your own core!");
 									}
 								} else if (WORLD.redCore.contains(bl.getLocation())) {
@@ -187,7 +189,7 @@ public class TNTManager implements Listener {
 
 									} else if (Game.teamRed.contains(shooter.getName())) {
 										// cancel
-										e.blockList().remove(bl);
+										toRemove.add(bl);
 										shooter.sendMessage(ChatColor.RED+ "Don't destroy your own core!");
 									}
 								}
@@ -215,7 +217,7 @@ public class TNTManager implements Listener {
 									Player own = Bukkit.getPlayer(owner);
 									if (ownerTeam == shooterTeam) {
 										if (owner != p) {
-											e.blockList().remove(bl);
+											toRemove.add(bl);
 											Bukkit.getPlayer(p).sendMessage(ChatColor.RED+ "Don't break your own team's turret!");
 										} else {
 											Util.messageServer(prefix+ shooter.getDisplayName()+ " blew up their own turret!");
@@ -229,11 +231,16 @@ public class TNTManager implements Listener {
 								// }
 							} else {
 								if (bl.getLocation().distance(WORLD.blueSpawn) < 20 || bl.getLocation().distance(WORLD.redSpawn) < 20) {
-									e.blockList().remove(bl);
+									toRemove.add(bl);
 								}
 							}
 							
 						}
+						
+						for (Block b: toRemove) {
+							e.blockList().remove(b);
+						}
+						
 						if (data == 1) { // first explosion
 							if (type == 3) {
 								// gold

@@ -12,11 +12,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class Announcer extends BukkitRunnable {
 	
 	private static ArrayList<String> messages = new ArrayList<String>();
-	private static ArrayList<String> messagesCopy;
+	private static ArrayList<String> messagesCopy = new ArrayList<String>();
 	private static String prefix = "&0[&2!&0]&r ";
 	
 	private static int taskId;
-	private static Plugin myplugin;
 	
 	public static void init() {
 		messages.add("&cTo use a turret, stand on the centre, look at the block you want to shoot at, and sneak!");
@@ -28,15 +27,15 @@ public class Announcer extends BukkitRunnable {
 	}
 	
 	public static void start(Plugin myplugin) {
-		taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(myplugin, new Announcer(myplugin), 900L, 900L);
+		taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(myplugin, new Announcer(), 900L, 900L);
 	}
 	
 	public static void stop() {
 		Bukkit.getScheduler().cancelTask(taskId);
 	}
 	
-	public Announcer(Plugin myplugin) {
-		this.myplugin = myplugin;
+	public Announcer() {
+		
 	}
 
 	@Override

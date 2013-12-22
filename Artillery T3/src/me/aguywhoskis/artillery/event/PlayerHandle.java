@@ -1,6 +1,5 @@
 package me.aguywhoskis.artillery.event;
 
-import java.awt.List;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -35,11 +34,8 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerChatEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
@@ -60,6 +56,7 @@ public class PlayerHandle implements Listener {
 	Material[] id = { Material.COAL_BLOCK, Material.IRON_BLOCK, Material.GOLD_BLOCK, Material.EMERALD_BLOCK, Material.DIAMOND_BLOCK };
 	Plugin myplugin = Artillery.plugin;
 
+	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void OnTurretFire(PlayerToggleSneakEvent e) {
 		
@@ -93,7 +90,7 @@ public class PlayerHandle implements Listener {
 								Vector mid = TNTManager.getTntVelocity(from,to, 15);
 								mid.multiply(1.45);
 								TNTManager.spawnTNT(p.getName(), main, idenLoc ,mid, 51, 50);
-								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(myplugin, idenLoc),800L); // 40 seconds
+								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc),800L); // 40 seconds
 
 							} else if (type.equals(Material.EMERALD_BLOCK)) {
 
@@ -120,7 +117,7 @@ public class PlayerHandle implements Listener {
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,mid, 41, 60);
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,right, 41, 60);
 
-								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(myplugin, idenLoc),600L); //30  seconds
+								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc),600L); //30  seconds
 
 							} else if (type.equals(Material.GOLD_BLOCK)) {
 								double radians = Math.toRadians(main.getYaw() + 90 * 0);
@@ -143,7 +140,7 @@ public class PlayerHandle implements Listener {
 
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,left, 31, 50);
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,right, 31, 50);
-								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(myplugin, idenLoc),400L); // 20 seconds
+								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc),400L); // 20 seconds
 
 							} else if (type.equals(Material.IRON_BLOCK)) {
 
@@ -167,7 +164,7 @@ public class PlayerHandle implements Listener {
 
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,left, 21, 60);
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,right, 21, 60);
-								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(myplugin, idenLoc),200L); // 10 seconds
+								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc),200L); // 10 seconds
 
 							} else if (type.equals(Material.COAL_BLOCK)) {
 
@@ -179,7 +176,7 @@ public class PlayerHandle implements Listener {
 								mid.multiply(1.2);
 
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,mid, 11, 90);
-								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(myplugin, idenLoc), 100L); // 5 seconds
+								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc), 100L); // 5 seconds
 
 							}
 
@@ -464,6 +461,7 @@ public class PlayerHandle implements Listener {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onMove(PlayerMoveEvent e) {
 		Location to = e.getTo();
@@ -511,18 +509,6 @@ public class PlayerHandle implements Listener {
 		Player p = (Player) e.getEntity();
 		p.setFoodLevel(20);
 		p.setSaturation(20F);
-		e.setCancelled(true);
-	}
-
-	@SuppressWarnings("deprecation")
-	//@EventHandler
-	public void onDropItem(PlayerDropItemEvent e) {
-		e.setCancelled(true);
-		e.getPlayer().updateInventory();
-	}
-
-	//@EventHandler
-	public void onPickUp(PlayerPickupItemEvent e) {
 		e.setCancelled(true);
 	}
 	
