@@ -1,8 +1,10 @@
 package me.aguywhoskis.artillery.event;
 
+import java.awt.List;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import me.aguywhoskis.artillery.Artillery;
 import me.aguywhoskis.artillery.thread.DelayDamageEvent;
@@ -19,6 +21,7 @@ import me.aguywhoskis.artillery.util.WORLD;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -49,6 +52,8 @@ import org.bukkit.util.Vector;
 public class PlayerHandle implements Listener {
 
 	static String prefix = "&0[&2!&0]&r ";
+	public static ArrayList<String> borderPlayerList = new ArrayList<String>();
+	
 	
 
 
@@ -57,6 +62,7 @@ public class PlayerHandle implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void OnTurretFire(PlayerToggleSneakEvent e) {
+		
 		if (PLUGIN.canShoot) {
 		if (e.getPlayer().isSneaking()) {
 			Player p = e.getPlayer();
@@ -84,7 +90,6 @@ public class PlayerHandle implements Listener {
 
 								Location from = main;
 								Location to = p.getTargetBlock(null, 200).getLocation();
-								p.getLastTwoTargetBlocks(null, 200);
 								Vector mid = TNTManager.getTntVelocity(from,to, 15);
 								mid.multiply(1.45);
 								TNTManager.spawnTNT(p.getName(), main, idenLoc ,mid, 51, 50);
@@ -269,9 +274,10 @@ public class PlayerHandle implements Listener {
 			}
 			
 		} else {
+			pl.setGameMode(GameMode.SURVIVAL);
+			e.setJoinMessage(null);
 			Timer.update();
 			pl.teleport(WORLD.main.getSpawnLocation());
-			Util.logInfo("2");
 			pl.getInventory().clear();
 			Util.messageServer(prefix+ChatColor.GOLD+p+ChatColor.RED+" has joined! "+ChatColor.GOLD+"("+ChatColor.GREEN+Bukkit.getOnlinePlayers().length+"/"+Bukkit.getServer().getMaxPlayers()+ChatColor.GOLD+")");
 		}
@@ -409,7 +415,6 @@ public class PlayerHandle implements Listener {
 				if (Game.teamBlue.contains(damaged)) {
 					if (Game.teamBlue.contains(damager)) {
 						e.setCancelled(true);
-						da2.sendMessage(ChatColor.RED + "Don't hurt your teammates!");
 
 					}
 				}
@@ -417,7 +422,6 @@ public class PlayerHandle implements Listener {
 				if (Game.teamRed.contains(damaged)) {
 					if (Game.teamRed.contains(damager)) {
 						e.setCancelled(true);
-						da2.sendMessage(ChatColor.RED + "Don't hurt your teammates");
 					}
 				}
 			}
@@ -471,6 +475,12 @@ public class PlayerHandle implements Listener {
 			e.getPlayer().setVelocity(new Vector(0, e.getPlayer().getVelocity().getY(), 0));
 			e.getPlayer().teleport(e.getFrom());
 			e.getPlayer().sendMessage(ChatColor.RED + "An invisible barrier stops you.");
+		}
+		if (borderPlayerList.contains(e.getPlayer().getName())) {
+			Location current = e.getPlayer().getLocation();
+			current.setY(0);
+			Block b = e.getPlayer().getWorld().getBlockAt(current);
+			b.setType(Material.SPONGE);
 		}
 	}
 

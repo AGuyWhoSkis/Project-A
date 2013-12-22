@@ -143,9 +143,14 @@ public class BlockHandle implements Listener {
 			PLUGIN.turretDelay.remove(loc);
 			return;
 		}
-		if (loc.distance(WORLD.blueSpawn) < 20 || loc.distance(WORLD.redSpawn) < 20) {
+		if (loc.getWorld().equals(WORLD.map)) {
+			if (loc.distance(WORLD.blueSpawn) < 20 || loc.distance(WORLD.redSpawn) < 20) {
+				e.setCancelled(true);
+				e.getPlayer().sendMessage(ChatColor.RED+"You can't do that here.");
+			}	
+		}
+		if (e.getPlayer().getWorld().equals(WORLD.main) && !e.getPlayer().isOp()) {
 			e.setCancelled(true);
-			e.getPlayer().sendMessage(ChatColor.RED+"You can't do that here.");
 		}
 		Block b = e.getBlock();
 		if (b.getType().equals(Material.BEACON)) {

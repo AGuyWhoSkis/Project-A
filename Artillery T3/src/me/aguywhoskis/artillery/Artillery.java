@@ -265,6 +265,15 @@ public class Artillery extends JavaPlugin {
 						if (args.length > 1) {
 							Timer.update(Integer.parseInt(args[1]));
 						}
+					} else if (args[0].equalsIgnoreCase("border")) {
+						String p = sender.getName();
+						if (PlayerHandle.borderPlayerList.contains(p)) {
+							PlayerHandle.borderPlayerList.remove(p);
+							sender.sendMessage(ChatColor.GREEN + "Border mode disabled.");
+						} else {
+							PlayerHandle.borderPlayerList.add(p);
+							sender.sendMessage(ChatColor.GREEN + "Border mode enabled.");
+						}
 					}
 				}
 			}

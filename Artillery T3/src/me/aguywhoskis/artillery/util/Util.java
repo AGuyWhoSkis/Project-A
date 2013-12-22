@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -25,7 +26,7 @@ public class Util {
 	static ItemStack ironSword = new ItemStack(Material.IRON_SWORD);
 	
 	static ItemStack bow = new ItemStack(Material.BOW);
-	static ItemStack arrows = new ItemStack(Material.ARROW, 64);
+	static ItemStack arrows = new ItemStack(Material.ARROW);
 	
 	static ItemStack redHelmet = new ItemStack(Material.LEATHER_HELMET);
 	static ItemStack redChestplate = new ItemStack(Material.LEATHER_CHESTPLATE);
@@ -46,6 +47,10 @@ public class Util {
 	Plugin myplugin = Artillery.plugin;
 	
 	public static void initIs() {
+		
+		ItemMeta bim = bow.getItemMeta();
+		bim.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+		bow.setItemMeta(bim);
 		
 		LeatherArmorMeta lam = (LeatherArmorMeta)blueHelmet.getItemMeta();
 		lam.setColor(Color.fromRGB(0, 0, 170));
@@ -129,7 +134,7 @@ public class Util {
 		
 		inv.setItem(0, ironSword);
 		inv.setItem(1, bow);
-		inv.setItem(2, arrows);
+		inv.setItem(35, arrows);
 		inv.setItem(7, obstacleShop);
 		inv.setItem(6, turretShop);
 		

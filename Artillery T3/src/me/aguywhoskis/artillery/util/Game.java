@@ -4,6 +4,7 @@ import me.aguywhoskis.artillery.Artillery;
 import me.aguywhoskis.artillery.thread.AnnounceMessage;
 import me.aguywhoskis.artillery.thread.ChangeMode;
 import me.aguywhoskis.artillery.thread.CleanUp;
+import me.aguywhoskis.artillery.thread.tick.Announcer;
 import me.aguywhoskis.artillery.thread.tick.Forfeit;
 import me.aguywhoskis.artillery.thread.tick.Timer;
 import net.minecraft.util.org.apache.commons.io.FileUtils;
@@ -74,16 +75,6 @@ public class Game {
 				} catch (IOException e) {
 					Util.logSevere("An IOException occured. Unable to load files of ."+WORLD.map.getName());
 				}
-//			  s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cGame will start in &61&c minute."), 0L);
-//			  s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cThe next map is: &6"+WORLD.map.getName()), 100L);
-//            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cGame will start in &630&c seconds."), 600L);
-//            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cGame will start in &615&c seconds."), 900L);
-//            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cGame will start in &610&c seconds."), 1000L);
-//            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cGame will start in &65&c seconds."), 1100L);
-//            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cGame will start in &63&c seconds..."), 1140L);
-//            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cGame will start in &62&c seconds..."), 1160L);
-//            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cGame will start in &61&c second..."), 1180L);
-//            s.scheduleSyncDelayedTask(myplugin, new ChangeMode(), 1200L);
 				
 				Timer.start();
 				Timer.update();
@@ -149,12 +140,15 @@ public class Game {
             PLUGIN.canPvp = false;
             
             Forfeit.start((JavaPlugin) myplugin);
+            
+            Announcer.init();
+            Announcer.start(myplugin);
         }
 
         if (PLUGIN.gameMode == 2) {
             //Gameplay
 
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cLet the battle begin! 10 minutes remain!"), 0L);
+            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cPVP and turrets have been enabled! Destroy the opposition's core block(s)! (10 mins remain)"), 0L);
             s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&c5 minutes remain!"), 6000L);
             s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&c2 minutes remain!"), 9600L);
             s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&c1 minute remains!"), 10800L);
@@ -253,9 +247,11 @@ public class Game {
             PLUGIN.canShoot = false;
             PLUGIN.canPvp = false;
             
+            Announcer.stop();
+            
             Forfeit.stop((JavaPlugin) myplugin);
             Forfeit.timer.clear();
-
+            
         }
 		PLUGIN.gameMode+= 1;
 	}

@@ -102,7 +102,7 @@ public class TNTManager implements Listener {
 					int data = Integer.parseInt(split[2]);
 					int type = Integer.parseInt(split[1]);
 
-					if (e.blockList().size() > 0) {
+					if (e.blockList() != null) {
 						for (Block bl : e.blockList()) {
 							if (bl.getType() == Material.BEACON) {
 

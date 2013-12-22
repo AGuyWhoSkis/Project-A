@@ -42,14 +42,13 @@ public class Timer extends BukkitRunnable{
 	@Override
 	public void run() {
 		if (!paused) {
-			Util.logInfo(""+seconds);
 			if (sigSeconds.contains(seconds)) {
 				Util.messageServer(prefix +"&cNext match in: "+ChatColor.GOLD + optimizeSeconds(seconds));
 			}
 			if (sigMapSeconds.contains(seconds)) {
 				Util.messageServer(prefix +"&cNext map is \""+ChatColor.GOLD+WORLD.map.getName()+"&c\" in: "+ChatColor.GOLD + optimizeSeconds(seconds));
 			}
-			if (seconds < 1 && willStart && !stopped) {
+			if (seconds < 1) {
 				Game.changeMode();
 				stop();
 				reset();
@@ -177,7 +176,7 @@ public class Timer extends BukkitRunnable{
 		} else if (secs == 1) {
 			s = "1 second";
 		} else if (secs < 120 && secs > 60) {
-			s = "1 minute "+Integer.toString(secs)+" seconds";
+			s = "1 minute "+Integer.toString(secs-60)+" seconds";
 		} else {
 			s = Integer.toString(secs)+" seconds";
 		}
