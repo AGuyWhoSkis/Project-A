@@ -1,5 +1,8 @@
 package me.aguywhoskis.artillery.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -10,7 +13,7 @@ import org.bukkit.scoreboard.Scoreboard;
 
 public class ScoreBoard {
 	
-	
+	public static Map<Player, Scoreboard> scoreboards = new HashMap<Player, Scoreboard>();
 
 	
 	@SuppressWarnings("unused")
@@ -24,14 +27,19 @@ public class ScoreBoard {
 	    Score exp = objective.getScore(Bukkit.getOfflinePlayer(ChatColor.GREEN + "Exp: "));
 	    Score coins = objective.getScore(Bukkit.getOfflinePlayer(ChatColor.GREEN + "Coins: "));
 	    Score assists = objective.getScore(Bukkit.getOfflinePlayer(ChatColor.GREEN + "Assists: "));
+	    //delete(p);
 	    p.setScoreboard(sb);
-		ScoreBoard.update(p);
+	    if (!scoreboards.containsKey(p)) {
+	    	scoreboards.put(p, sb);	
+	    }
+	    
+		update(p);
 	}
 	
-	public static void delete(Player p) {
-		p.setScoreboard(null);
-		
-	}
+	
+//	public static void delete(Player p) {
+//		p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+//	}
 	
 	public static void updateAll() {
         for (Player p :Bukkit.getOnlinePlayers()) {
@@ -49,5 +57,10 @@ public class ScoreBoard {
 		deaths.setScore(Game.deaths.get(p.getName()));
 		exp.setScore(Game.exp.get(p.getName()));
 		coins.setScore(Game.coins.get(p.getName()));
+		
+		if (!scoreboards.containsKey(p)) {
+			scoreboards.put(p, p.getScoreboard());
+		}
+		
 	}
 }
