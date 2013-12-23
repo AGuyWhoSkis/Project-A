@@ -106,7 +106,8 @@ public class BlockHandle implements Listener {
 				try {
 					World w = e.getPlayer().getLocation().getWorld();
 					BlockHandle.loadSchematic(w, f, v, e.getPlayer().getName());
-					
+					loc.setX(loc.getX()+0.5);
+					loc.setZ(loc.getZ()+0.5);					
 					TNTManager.registeredLaunchers.put(loc, e.getPlayer().getName());
 					//Load schematic into world
 				} catch (DataException e1) {

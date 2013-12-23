@@ -41,7 +41,7 @@ public class TNTManager implements Listener {
 	 * 
 	 * Ex: 42 is emerald in stage 2 (won't spawn more)
 	 **/
-
+	
 	static Plugin myplugin = Artillery.plugin;
 
 	public static void spawnTNT(String owner, Location loc, Location source, Vector v, int typeData, int ticks) {

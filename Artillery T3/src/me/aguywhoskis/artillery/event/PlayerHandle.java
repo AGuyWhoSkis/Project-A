@@ -49,9 +49,13 @@ public class PlayerHandle implements Listener {
 
 	static String prefix = "&0[&2!&0]&r ";
 	public static ArrayList<String> borderPlayerList = new ArrayList<String>();
-	
-	
 
+	
+	public final static int COAL_DELAY = 5;
+	public final static int IRON_DELAY = 10;
+	public final static int GOLD_DELAY = 20;
+	public final static int EMERALD_DELAY = 30;
+	public final static int DIAMOND_DELAY = 40;
 
 	Material[] id = { Material.COAL_BLOCK, Material.IRON_BLOCK, Material.GOLD_BLOCK, Material.EMERALD_BLOCK, Material.DIAMOND_BLOCK };
 	Plugin myplugin = Artillery.plugin;
@@ -90,7 +94,7 @@ public class PlayerHandle implements Listener {
 								Vector mid = TNTManager.getTntVelocity(from,to, 15);
 								mid.multiply(1.45);
 								TNTManager.spawnTNT(p.getName(), main, idenLoc ,mid, 51, 50);
-								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc),800L); // 40 seconds
+								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc),(long)20*DIAMOND_DELAY);
 
 							} else if (type.equals(Material.EMERALD_BLOCK)) {
 
@@ -117,7 +121,7 @@ public class PlayerHandle implements Listener {
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,mid, 41, 60);
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,right, 41, 60);
 
-								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc),600L); //30  seconds
+								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc),(long)20*EMERALD_DELAY);
 
 							} else if (type.equals(Material.GOLD_BLOCK)) {
 								double radians = Math.toRadians(main.getYaw() + 90 * 0);
@@ -140,7 +144,7 @@ public class PlayerHandle implements Listener {
 
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,left, 31, 50);
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,right, 31, 50);
-								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc),400L); // 20 seconds
+								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc),(long)20*GOLD_DELAY);
 
 							} else if (type.equals(Material.IRON_BLOCK)) {
 
@@ -164,7 +168,7 @@ public class PlayerHandle implements Listener {
 
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,left, 21, 60);
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,right, 21, 60);
-								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc),200L); // 10 seconds
+								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc),(long)20*IRON_DELAY);
 
 							} else if (type.equals(Material.COAL_BLOCK)) {
 
@@ -176,7 +180,7 @@ public class PlayerHandle implements Listener {
 								mid.multiply(1.2);
 
 								TNTManager.spawnTNT(p.getName(), from, idenLoc,mid, 11, 90);
-								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc), 100L); // 5 seconds
+								s.scheduleSyncDelayedTask(myplugin,new RemoveFired(idenLoc), (long) 20*COAL_DELAY);
 
 							}
 
@@ -242,7 +246,6 @@ public class PlayerHandle implements Listener {
 				pl.setDisplayName(ChatColor.RED +pl.getName()+ChatColor.WHITE);
 			}
 			if (!Forfeit.timer.containsKey(p)) {
-				Util.logInfo("does not contain key");
 				if (Game.teamBlue.contains(p)) {
 					pl.teleport(WORLD.blueSpawn);
 				} else {

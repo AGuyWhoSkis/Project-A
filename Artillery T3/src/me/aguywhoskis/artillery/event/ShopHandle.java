@@ -110,13 +110,14 @@ public class ShopHandle implements Listener {
         ItemMeta im = null;
         String name = "none";
     	String item = "none";
-    	
-    	if (e.getCurrentItem().hasItemMeta()) {
-    		if (e.getCurrentItem().getItemMeta().hasDisplayName()) {
-        		name = e.getCurrentItem().getItemMeta().getDisplayName();
-        	}
+    	if (e.getCurrentItem() != null) {
+    	    if (e.getCurrentItem().hasItemMeta()) {
+    	    	if (e.getCurrentItem().getItemMeta().hasDisplayName()) {
+    	    		name = e.getCurrentItem().getItemMeta().getDisplayName();
+    	    	}
+    	    }
     	}
-        
+
         if (name.contains("Turrets")) {
         	e.getWhoClicked().openInventory(turretInv);
         	return;
