@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import me.aguywhoskis.artillery.Artillery;
 import me.aguywhoskis.artillery.util.Game;
+import me.aguywhoskis.artillery.util.PLUGIN;
 import me.aguywhoskis.artillery.util.Util;
 
 import org.bukkit.Bukkit;
@@ -36,16 +37,15 @@ public class Forfeit extends BukkitRunnable {
         this.plugin = (JavaPlugin) myplugin;
     }
 	
-	String prefix = "&0[&2!&0]&r ";
     public void run() {
     	for (Entry<String, Integer> entry : timer.entrySet()) {
     	    if (entry.getValue() < 1) {
     	    	String playerName = entry.getKey();
     	    	Player p = Bukkit.getPlayer(playerName);
     	    	if (p != null) {
-	    	    	Util.messageServer(prefix+Bukkit.getPlayer(playerName).getDisplayName()+ChatColor.DARK_RED+" has forfeit!");
+	    	    	Util.messageServer(PLUGIN.prefix+Bukkit.getPlayer(playerName).getDisplayName()+ChatColor.DARK_RED+" has forfeit!");
     	    	} else {
-    	    		Util.messageServer(prefix+playerName+ChatColor.DARK_RED+" has forfeit");
+    	    		Util.messageServer(PLUGIN.prefix+playerName+ChatColor.DARK_RED+" has forfeit");
     	    	}
     	    	
     	    	timer.remove(playerName);

@@ -13,7 +13,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 public class WORLD {
@@ -93,7 +92,7 @@ public class WORLD {
     		w.setTime(0L);
     		w.setStorm(false);
     		w.setMonsterSpawnLimit(0);
-    		Util.logInfo("Loaded world '"+name+"'");
+    		Util.logInfo("Loaded world '"+name+"' succesfully");
     		
         }
     }
@@ -111,31 +110,6 @@ public class WORLD {
     	} else {
     		return false;
     	}
-    }
-    
-    public static void setMainSpawn(Player p) {
-    	if (p.getWorld().equals(WORLD.main)) {
-	    	Location loc = p.getLocation();
-	    	File f = new File(loc.getWorld().getWorldFolder(), "main.spawn");
-	    	if (!f.exists()) {
-	    		try {
-					f.createNewFile();
-				} catch (IOException e) {
-					Bukkit.getLogger().info("An error occured when trying to set the main spawn.");
-					e.printStackTrace();
-				}
-	    	}
-				
-			try {
-				FileWriter writer = new FileWriter(f);
-				writer.write(loc.getWorld()+","+loc.getX()+","+loc.getY()+","+loc.getZ()+","+loc.getYaw()+","+loc.getPitch());
-				writer.flush(); writer.close();
-				p.sendMessage("Main spawn set.");
-			} catch (IOException e) {
-				Bukkit.getLogger().info("An error occured when trying to set the main spawn.");
-				e.printStackTrace();
-			}		
-	    }
     }
     
     public static Location loadMainSpawn() {

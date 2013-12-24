@@ -24,8 +24,6 @@ public class TurretDelay extends BukkitRunnable {
     			turrets.put(e.getKey(), e.getValue() -1);
     		}
     	}
-
-		
 	}
 	
 	public TurretDelay() {

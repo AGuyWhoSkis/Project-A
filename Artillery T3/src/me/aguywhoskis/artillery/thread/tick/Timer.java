@@ -6,6 +6,7 @@ import java.util.List;
 
 import me.aguywhoskis.artillery.Artillery;
 import me.aguywhoskis.artillery.util.Game;
+import me.aguywhoskis.artillery.util.PLUGIN;
 import me.aguywhoskis.artillery.util.Util;
 import me.aguywhoskis.artillery.util.WORLD;
 
@@ -22,8 +23,6 @@ public class Timer extends BukkitRunnable{
 	private List<Integer> sigSeconds = Arrays.asList(120,90,60,30,15,10,5,3,2,1);
 	private List<Integer> sigMapSeconds = Arrays.asList(70,45,13);
 	
-	private static String prefix = "&0[&2!&0]&r ";
-	
 	private static final int MIN_PLAYERS = 8;
 	private static final int MAX_PLAYERS = Bukkit.getServer().getMaxPlayers();
 	
@@ -39,10 +38,10 @@ public class Timer extends BukkitRunnable{
 	public void run() {
 		if (!paused) {
 			if (sigSeconds.contains(seconds)) {
-				Util.messageServer(prefix +"&cNext match in: "+ChatColor.GOLD + optimizeSeconds(seconds));
+				Util.messageServer(PLUGIN.prefix +"&cNext match in: "+ChatColor.GOLD + optimizeSeconds(seconds));
 			}
 			if (sigMapSeconds.contains(seconds)) {
-				Util.messageServer(prefix +"&cNext map is \""+ChatColor.GOLD+WORLD.map.getName()+"&c\" in: "+ChatColor.GOLD + optimizeSeconds(seconds));
+				Util.messageServer(PLUGIN.prefix +"&cNext map is \""+ChatColor.GOLD+WORLD.map.getName()+"&c\" in: "+ChatColor.GOLD + optimizeSeconds(seconds));
 			}
 			if (seconds < 1) {
 				Game.changeMode();
@@ -67,13 +66,13 @@ public class Timer extends BukkitRunnable{
 	}
 	
 	public static void pause() {
-		Util.messageServer(prefix +"&cThe timer has been paused until more players join.");
+		Util.messageServer(PLUGIN.prefix +"&cThe timer has been paused until more players join.");
 		paused = true;
 	}
 	
 	public static void resume() {
 		if (Bukkit.getOnlinePlayers().length != 1) {
-			Util.messageServer(prefix +"&cThe timer has been resumed.");
+			Util.messageServer(PLUGIN.prefix +"&cThe timer has been resumed.");
 		}
 		paused = false;
 	}
@@ -123,7 +122,6 @@ public class Timer extends BukkitRunnable{
 			//Minimum amount of players
 			if (paused) {
 				resume();
-
 			}
 			
 		} else {
@@ -151,9 +149,9 @@ public class Timer extends BukkitRunnable{
 		Timer.seconds = n;
 		if (shouldAnnounce) {
 			if (type == "s") {
-				Util.messageServer(prefix +"&cThe timer has been reduced to "+ChatColor.GOLD+optimizeSeconds(n)+"&c!");
+				Util.messageServer(PLUGIN.prefix +"&cThe timer has been reduced to "+ChatColor.GOLD+optimizeSeconds(n)+"&c!");
 			} else if (type == "l") {
-				Util.messageServer(prefix +"&cThe timer has been increased to "+ChatColor.GOLD+optimizeSeconds(n)+"&c!");
+				Util.messageServer(PLUGIN.prefix +"&cThe timer has been increased to "+ChatColor.GOLD+optimizeSeconds(n)+"&c!");
 			}
 		}
 	}

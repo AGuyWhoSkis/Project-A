@@ -7,6 +7,7 @@ import me.aguywhoskis.artillery.thread.CleanUp;
 import me.aguywhoskis.artillery.thread.tick.Announcer;
 import me.aguywhoskis.artillery.thread.tick.Forfeit;
 import me.aguywhoskis.artillery.thread.tick.Timer;
+import me.aguywhoskis.artillery.util.PLUGIN;
 import net.minecraft.util.org.apache.commons.io.FileUtils;
 
 import org.bukkit.Bukkit;
@@ -42,7 +43,6 @@ public class Game {
     static Plugin myplugin = Artillery.plugin;
 
 	public static void changeMode() {
-        String prefix = "&0[&2!&0]&r ";
         BukkitScheduler s = Bukkit.getScheduler();
 
 		if (PLUGIN.gameMode == 0) {
@@ -90,75 +90,24 @@ public class Game {
         if (PLUGIN.gameMode == 1) {
             //Building
         	
-			for (Player p:Bukkit.getServer().getOnlinePlayers()) {
-				
-				p.setGameMode(GameMode.SURVIVAL);
-				assignTeam(p);
-				p.getInventory().clear();
-				Util.giveInventory(p);
-				
-				try {
-					if (teamBlue.contains(p.getName())) {
-						p.teleport(WORLD.blueSpawn);
-						Bukkit.getLogger().info("Teleported "+p.getName()+" to "+WORLD.blueSpawn);
-					} else if (teamRed.contains(p.getName())) {
-						p.teleport(WORLD.redSpawn);
-						Bukkit.getLogger().info("Teleported "+p.getName()+" to "+WORLD.redSpawn);
-					}
-				} catch (NullPointerException npe) {
-					Bukkit.broadcastMessage(ChatColor.RED + "Spawns for that world are not fully set.");
-				}
-				Game.assists.put(p.getName(), 0);
-				Game.kills.put(p.getName(), 0);
-				Game.deaths.put(p.getName(), 0);
-				ScoreBoard.update(p);
-			}
-
-            for (String str:teamBlue) {
-                Bukkit.getServer().getPlayer(str).setDisplayName(ChatColor.BLUE +str+ ChatColor.GRAY);
-                Bukkit.getServer().getPlayer(str).sendMessage(ChatColor.GRAY + "You are on the "+ChatColor.BLUE + "BLUE "+ChatColor.GRAY + "team!");
-            }
-            for (String str:teamRed) {
-                Bukkit.getServer().getPlayer(str).setDisplayName(ChatColor.RED +str+ ChatColor.GRAY);
-                Bukkit.getServer().getPlayer(str).sendMessage(ChatColor.GRAY + "You are on the "+ChatColor.RED + "RED "+ChatColor.GRAY + "team!");
-            }
-            
-          	Util.messageServer(prefix+"&cYou have 1 minute to set up defences before the battle begins!");
-
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cThe battle begins in &630&c seconds."), 30*20L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cThe battle begins in &615&c seconds."), 45*20L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cThe battle begins in &610&c seconds."), 50*20L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cThe battle begins in &65&c seconds."), 55*20L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cThe battle begins in &63&c seconds..."), 57*20L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cThe battle begins in &62&c seconds..."), 58*20L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cThe battle begins in &61&c second..."), 59*20L);
-            s.scheduleSyncDelayedTask(myplugin, new ChangeMode(), 60*20L);
-
-            PLUGIN.canBuild = true;
-            PLUGIN.canBuy = true;
-            PLUGIN.canShoot = false;
-            PLUGIN.canPvp = false;
-            
-            Forfeit.start((JavaPlugin) myplugin);
-            
-            Announcer.init();
-            Announcer.start(myplugin);
+        	Game.changeModeSim1();
         }
 
         if (PLUGIN.gameMode == 2) {
             //Gameplay
 
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&cPVP and turrets have been enabled! Destroy the opposition's core block(s)! (10 mins remain)"), 0L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&c5 minutes remain!"), 6000L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&c2 minutes remain!"), 9600L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&c1 minute remains!"), 10800L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&c30 seconds remain!"), 11400L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&c15 seconds remain!"), 11700L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&c10 seconds remain!"), 11800L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&c5 seconds remain!"), 11900L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&c3 seconds remain!"), 11940L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&c2 seconds remain!"), 11960L);
-            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, prefix+"&c1 second remains!"), 11980L);
+            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&cPVP and turrets have been enabled! Destroy the opposition's core block(s)! (10 mins remain)"), 0L);
+            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&c5 minutes remain!"), 6000L);
+            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&c2 minutes remain!"), 9600L);
+            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&c1 minute remains!"), 10800L);
+            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&c30 seconds remain!"), 11400L);
+            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&c15 seconds remain!"), 11700L);
+            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&c10 seconds remain!"), 11800L);
+            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&c5 seconds remain!"), 11900L);
+            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&c4 seconds remain!"), 11920L);
+            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&c3 seconds remain!"), 11940L);
+            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&c2 seconds remain!"), 11960L);
+            s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&c1 second remains!"), 11980L);
             s.scheduleSyncDelayedTask(myplugin, new ChangeMode(), 12000L);
             
 
@@ -239,7 +188,7 @@ public class Game {
                 }
 
             }
-            Util.messageServer(prefix+message);
+            Util.messageServer(message);
             s.scheduleSyncDelayedTask(myplugin, new CleanUp(), 300L);
 
             PLUGIN.canBuild = false;
@@ -287,6 +236,67 @@ public class Game {
 		} else {
 			p.setDisplayName(ChatColor.BLUE +name+ChatColor.WHITE);
 		}
+	}
+	
+	public static void changeModeSim1() {
+		
+        BukkitScheduler s = Bukkit.getScheduler();
+		
+		for (Player p:Bukkit.getServer().getOnlinePlayers()) {
+			
+			p.setGameMode(GameMode.SURVIVAL);
+			assignTeam(p);
+			p.getInventory().clear();
+			Util.giveInventory(p);
+			
+			try {
+				if (teamBlue.contains(p.getName())) {
+					p.teleport(WORLD.blueSpawn);
+					Bukkit.getLogger().info("Teleported "+p.getName()+" to "+WORLD.blueSpawn);
+				} else if (teamRed.contains(p.getName())) {
+					p.teleport(WORLD.redSpawn);
+					Bukkit.getLogger().info("Teleported "+p.getName()+" to "+WORLD.redSpawn);
+				}
+			} catch (NullPointerException npe) {
+				Bukkit.broadcastMessage(ChatColor.RED + "Spawns for that world are not fully set.");
+			}
+			Game.assists.put(p.getName(), 0);
+			Game.kills.put(p.getName(), 0);
+			Game.deaths.put(p.getName(), 0);
+			ScoreBoard.update(p);
+		}
+
+        for (String str:teamBlue) {
+            Bukkit.getServer().getPlayer(str).setDisplayName(ChatColor.BLUE +str+ ChatColor.GRAY);
+            Bukkit.getServer().getPlayer(str).sendMessage(ChatColor.GRAY + "You are on the "+ChatColor.BLUE + "BLUE "+ChatColor.GRAY + "team!");
+        }
+        for (String str:teamRed) {
+            Bukkit.getServer().getPlayer(str).setDisplayName(ChatColor.RED +str+ ChatColor.GRAY);
+            Bukkit.getServer().getPlayer(str).sendMessage(ChatColor.GRAY + "You are on the "+ChatColor.RED + "RED "+ChatColor.GRAY + "team!");
+        }
+        
+      	Util.messageServer(PLUGIN.prefix+"&cYou have 1 minute to set up defences before the battle begins!");
+
+        s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&cThe battle begins in &630&c seconds."), 30*20L);
+        s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&cThe battle begins in &615&c seconds."), 45*20L);
+        s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&cThe battle begins in &610&c seconds."), 50*20L);
+        s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&cThe battle begins in &65&c seconds."), 55*20L);
+        s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&cThe battle begins in &64&c seconds."), 56*20L);
+        s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&cThe battle begins in &63&c seconds..."), 57*20L);
+        s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&cThe battle begins in &62&c seconds..."), 58*20L);
+        s.scheduleSyncDelayedTask(myplugin, new AnnounceMessage(myplugin, PLUGIN.prefix+"&cThe battle begins in &61&c second..."), 59*20L);
+        s.scheduleSyncDelayedTask(myplugin, new ChangeMode(), 60*20L);
+
+        PLUGIN.started = true;
+        PLUGIN.canBuild = true;
+        PLUGIN.canBuy = true;
+        PLUGIN.canShoot = false;
+        PLUGIN.canPvp = false;
+        
+        Forfeit.start((JavaPlugin) myplugin);
+        
+        Announcer.init();
+        Announcer.start(myplugin);
 	}
 	
 	public static void saveStat(String player, int stat, int amount) {

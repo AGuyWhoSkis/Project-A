@@ -66,7 +66,6 @@ public class TNTManager implements Listener {
 	Material[] id = { Material.BEACON };
 	Material[] id2 = { Material.WOOL };
 
-	String prefix = "&0[&2!&0]&r ";
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onExplosion(EntityExplodeEvent e) {
@@ -220,12 +219,12 @@ public class TNTManager implements Listener {
 											toRemove.add(bl);
 											Bukkit.getPlayer(p).sendMessage(ChatColor.RED+ "Don't break your own team's turret!");
 										} else {
-											Util.messageServer(prefix+ shooter.getDisplayName()+ " blew up their own turret!");
+											Util.messageServer(PLUGIN.prefix+ shooter.getDisplayName()+ " blew up their own turret!");
 										}
 
 									} else {
 										Game.addCoins(Bukkit.getPlayer(p), 30,"Turret Kill");
-										Util.messageServer(prefix +shooter.getDisplayName()+ " blew up the turret of "+own.getDisplayName()+"!");
+										Util.messageServer(PLUGIN.prefix +shooter.getDisplayName()+ " blew up the turret of "+own.getDisplayName()+"!");
 									}
 								}
 								// }

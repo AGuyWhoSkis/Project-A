@@ -47,7 +47,6 @@ import org.bukkit.util.Vector;
 
 public class PlayerHandle implements Listener {
 
-	static String prefix = "&0[&2!&0]&r ";
 	public static ArrayList<String> borderPlayerList = new ArrayList<String>();
 
 	
@@ -279,7 +278,7 @@ public class PlayerHandle implements Listener {
 			Timer.update();
 			pl.teleport(WORLD.main.getSpawnLocation());
 			pl.getInventory().clear();
-			Util.messageServer(prefix+ChatColor.GOLD+p+ChatColor.RED+" has joined! "+ChatColor.GOLD+"("+ChatColor.GREEN+Bukkit.getOnlinePlayers().length+"/"+Bukkit.getServer().getMaxPlayers()+ChatColor.GOLD+")");
+			Util.messageServer(PLUGIN.prefix+ChatColor.GOLD+p+ChatColor.RED+" has joined! "+ChatColor.GOLD+"("+ChatColor.GREEN+Bukkit.getOnlinePlayers().length+"/"+Bukkit.getServer().getMaxPlayers()+ChatColor.GOLD+")");
 		}
 	}
 
@@ -321,7 +320,6 @@ public class PlayerHandle implements Listener {
 					Player shooter = Bukkit.getServer().getPlayer(killee.getMetadata("hitShooter").get(0).asString());
 					Player turretOwner = Bukkit.getServer().getPlayer(killee.getMetadata("hitTurretOwner").get(0).asString());
 
-					String prefix = "&0[&2!&0]&r ";
 					String deathMessage = null;
 
 					if (turretOwner != shooter) {
@@ -350,9 +348,8 @@ public class PlayerHandle implements Listener {
 							ScoreBoard.update(shooter);
 						}
 					}
-					prefix = ChatColor.translateAlternateColorCodes('&', prefix);
-					deathMessage = ChatColor.translateAlternateColorCodes('&',deathMessage);
-					Bukkit.broadcastMessage(prefix + deathMessage);
+
+					Util.messageServer(PLUGIN.prefix + deathMessage);
 				}
 			}
 		}

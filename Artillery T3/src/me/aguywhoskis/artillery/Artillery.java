@@ -3,6 +3,9 @@ package me.aguywhoskis.artillery;
 import me.aguywhoskis.artillery.event.BlockHandle;
 import me.aguywhoskis.artillery.event.PlayerHandle;
 import me.aguywhoskis.artillery.event.ShopHandle;
+import me.aguywhoskis.artillery.framework.CommandArgs;
+import me.aguywhoskis.artillery.framework.CommandFramework;
+import me.aguywhoskis.artillery.thread.CleanUp;
 import me.aguywhoskis.artillery.thread.tick.Timer;
 import me.aguywhoskis.artillery.util.Game;
 import me.aguywhoskis.artillery.util.PLUGIN;
@@ -13,8 +16,6 @@ import me.aguywhoskis.artillery.util.WORLD;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -23,26 +24,36 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 
 
 public class Artillery extends JavaPlugin {
 	
+    /** * Your plugin's command framework object. */
+    CommandFramework framework;
+    
+    public static Plugin plugin;
+
+	
 	public void onEnable() {
+		Artillery.plugin = this;
 		File schemDir = new File(getDataFolder(), "cannons");
 		File playerDir = new File (getDataFolder(), "players");
 		schemDir.mkdirs();
 		playerDir.mkdirs();
 		
-		plugin = this;
+
 		Bukkit.getPluginManager().registerEvents(new TNTManager(), this);
 		Bukkit.getPluginManager().registerEvents(new PlayerHandle(), this);
         Bukkit.getPluginManager().registerEvents(new BlockHandle(), this);
         Bukkit.getPluginManager().registerEvents(new ShopHandle(), this);
 
         WORLD.mainSpawn = WORLD.loadMainSpawn();
-
+        
+        framework = new CommandFramework(plugin);
+        
+        /** This will register all commands inside of this class. It works much the same as the registerEvents() method. Note: Commands do not need to be registered in plugin.yml! */
+        framework.registerCommands(this);
+        framework.registerHelp();
         
         for (Player p: Bukkit.getOnlinePlayers()) {
         	Game.exp.put(p.getName(), Game.getStat(p.getName(), 0));
@@ -80,12 +91,15 @@ public class Artillery extends JavaPlugin {
 	
 	
 	public void onDisable() {
+		
 		for (Player p:Bukkit.getServer().getOnlinePlayers()) {
 			p.setDisplayName(p.getName());
 			p.teleport(WORLD.mainSpawn);
 			p.getInventory().clear();
 		}
+		
 		WORLD.unload(WORLD.map.getName());
+		
 		Game.teamBlue.clear();
 		Game.teamRed.clear();
 		Game.exp.clear();
@@ -99,10 +113,68 @@ public class Artillery extends JavaPlugin {
 		Bukkit.broadcastMessage("");
 	}
 
-	public static Plugin plugin;
+	
+	@me.aguywhoskis.artillery.framework.Command(name = "world", aliases = {"w"}, description = "Base command for map management", usage = "/world <setspawn:setcore:delcore> <red:blue>", permission = "artillery.admin.world")
+    public void world(CommandArgs args) {
+		CommandSender sender = args.getSender();
+		
+        sender.sendMessage(ChatColor.GOLD+"-----"+ChatColor.DARK_AQUA+" All "+ChatColor.GOLD+"/world"+ChatColor.DARK_AQUA+" subcommands "+ChatColor.GOLD+"-----");
+        sender.sendMessage(ChatColor.GOLD+"/world setcore <red:blue>"+ChatColor.DARK_AQUA+": Saves the location below you as a core location");
+        sender.sendMessage(ChatColor.GOLD+"/world delcore <red:blue> <core number>"+ChatColor.DARK_AQUA+": Deletes the specified core block");
+        sender.sendMessage(ChatColor.GOLD+"/world setspawn <red:blue>"+ChatColor.DARK_AQUA+": Saves your current location as the spawn location for the specified team.");
+        sender.sendMessage(ChatColor.GOLD+"/world delspawn <red:blue>"+ChatColor.DARK_AQUA+": Deletes the spawn location of the specified team.");
+        sender.sendMessage(ChatColor.GOLD+"/world border"+ChatColor.DARK_AQUA+": Toggles border construction mode, placing sponges at your x and z coordinates, but at y=0");
+        sender.sendMessage(ChatColor.GOLD+"------------------------------");
+        
+	}
+	
+	@me.aguywhoskis.artillery.framework.Command(name = "game", aliases = {"g"}, description = "Base command for managing games", usage = "/game <start:stop:pause:resume>", permission = "artillery.admin.game")
+    public void game(CommandArgs args) {
+		CommandSender sender = args.getSender();
+		
+		sender.sendMessage(ChatColor.GOLD+"-----"+ChatColor.DARK_AQUA+" All "+ChatColor.GOLD+"/game"+ChatColor.DARK_AQUA+" subcommands "+ChatColor.GOLD+"-----");
+		sender.sendMessage(ChatColor.GOLD+"/game start"+ChatColor.DARK_AQUA+": Starts the game");
+		sender.sendMessage(ChatColor.GOLD+"/game stop"+ChatColor.DARK_AQUA+": Stops the game");
+		sender.sendMessage(ChatColor.GOLD+"/game pause"+ChatColor.DARK_AQUA+": Pauses the timer at the current setting");
+		sender.sendMessage(ChatColor.GOLD+"/game resume"+ChatColor.DARK_AQUA+": Resumes a paused game");
+		sender.sendMessage(ChatColor.GOLD+"------------------------------");
+		
+	}
+	
+	@me.aguywhoskis.artillery.framework.Command(name = "game.start", aliases = {"g.start"}, description = "Starts a game.", usage = "/game start", permission = "artillery.admin.game.start")
+	public void gameStart(CommandArgs args) {
+		CommandSender sender = args.getSender();
+		if (PLUGIN.started) {
+			sender.sendMessage(ChatColor.RED+"The game is already started!");
+			return;
+		}
+		PLUGIN.gameMode = 1;
+		Game.changeModeSim1();
+		Util.messageServer(PLUGIN.prefix+"&cThe game has been started by "+ChatColor.GOLD+sender.getName()+"&c!");
+	}
+	
+	@me.aguywhoskis.artillery.framework.Command(name = "game.stop", aliases = {"g.stop"}, description = "Stops a game.", usage = "/game stop", permission = "artillery.admin.game.stop")
+	public void gameStop(CommandArgs args) {
+		CommandSender sender = args.getSender();
+		if (PLUGIN.gameMode == 0) {
+			sender.sendMessage("The game is not running. Use /game pause to stop just the timer.");
+			return;
+		}
+		CleanUp.runNoWinner();
+		Bukkit.getScheduler().cancelTasks(plugin);
+		Util.messageServer(PLUGIN.prefix+"&cThe game has been stopped by "+ChatColor.GOLD+sender.getName()+"&c!");
+	}
+	
+	@me.aguywhoskis.artillery.framework.Command(name = "game.pause", aliases = {"g.pause","game.p","g.p"}, description = "Pauses the timer", usage = "/game pause", permission = "artillery.admin.game.pause")
+	public void gamePause(CommandArgs args)  {
+		CommandSender sender = args.getSender();
+	}
+	
+	
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if (sender.isOp()) {
+		return framework.handleCommand(sender, label, cmd, args);
+		/**if (sender.isOp()) {
 			if (!(sender instanceof Player)) {
 				sender.sendMessage("You must be a player to do that.");
 				return true;
@@ -279,5 +351,6 @@ public class Artillery extends JavaPlugin {
 			}
 		}
 		return true;
+		**/
 	}
 }

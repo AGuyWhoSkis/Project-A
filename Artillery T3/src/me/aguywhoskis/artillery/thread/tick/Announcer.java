@@ -3,6 +3,7 @@ package me.aguywhoskis.artillery.thread.tick;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import me.aguywhoskis.artillery.util.PLUGIN;
 import me.aguywhoskis.artillery.util.Util;
 
 import org.bukkit.Bukkit;
@@ -13,7 +14,6 @@ public class Announcer extends BukkitRunnable {
 	
 	private static ArrayList<String> messages = new ArrayList<String>();
 	private static ArrayList<String> messagesCopy = new ArrayList<String>();
-	private static String prefix = "&0[&2!&0]&r ";
 	
 	private static int taskId;
 	
@@ -44,7 +44,7 @@ public class Announcer extends BukkitRunnable {
 			messagesCopy = messages;
 		}
 		Collections.shuffle(messagesCopy);
-		Util.messageServer(prefix+messagesCopy.get(0));
+		Util.messageServer(PLUGIN.prefix+messagesCopy.get(0));
 		messagesCopy.remove(0);	
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.aguywhoskis.artillery.util.Game;
+import me.aguywhoskis.artillery.util.PLUGIN;
 import me.aguywhoskis.artillery.util.ScoreBoard;
 import me.aguywhoskis.artillery.util.Util;
 
@@ -25,8 +26,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class ShopHandle implements Listener {
 	 
     private static Inventory turretInv, obstacleInv;
-
-    private static String prefix = (ChatColor.BLACK+"["+ChatColor.GOLD+"$"+ChatColor.BLACK+"] "+ChatColor.RESET);
     
     public static void initIs() {
     	//setting all names/lores of items in both shops
@@ -161,19 +160,19 @@ public class ShopHandle implements Listener {
         if (name == "none") {
         	 Material type = e.getCurrentItem().getType();
         	 if (type == Material.WEB) {
-        		 cost = 30;
+        		 cost = 15;
         		 is = new ItemStack(Material.WEB, 8);
         		 item = "cobweb";
         	 } else if (type == Material.COBBLE_WALL) {
-        		 cost = 30;
+        		 cost = 15;
         		 is = new ItemStack(Material.COBBLE_WALL, 8);
         		 item = "Cobblestone wall";
         	 } else if (type == Material.COBBLESTONE) {
-        		 cost = 25;
+        		 cost = 15;
         		 is = new ItemStack(Material.COBBLESTONE, 8);
         		 item = "Cobblestone";
         	 } else if (type == Material.LADDER) {
-        		 cost = 50;
+        		 cost = 10;
         		 is = new ItemStack(Material.LADDER, 16);
         		 item = "Ladder";
         	 } else if (type == Material.DIAMOND_SWORD) {
@@ -181,15 +180,15 @@ public class ShopHandle implements Listener {
         		 is = new ItemStack(Material.DIAMOND_SWORD);
         		 item = "Diamond Sword";
         	 } else if (type == Material.STONE_PICKAXE) {
-        		 cost = 30;
+        		 cost = 15;
         		 is = new ItemStack(Material.STONE_PICKAXE);
         		 item = "Stone Pickaxe";
         	 } else if (type == Material.STONE_SPADE) {
-        		 cost = 20;
+        		 cost = 5;
         		 is = new ItemStack(Material.STONE_SPADE);
         		 item = "Stone Spade";
         	 } else if (type == Material.STONE_AXE) {
-        		 cost = 15;
+        		 cost = 10;
         		 is = new ItemStack(Material.STONE_AXE);
         		 item = "Stone Axe";
         	 } else if (type == Material.WRITTEN_BOOK) {
@@ -204,9 +203,9 @@ public class ShopHandle implements Listener {
         	//Insufficient funds
         	difference = Math.abs(difference);
         	if (difference > 1) {
-        		p.sendMessage(prefix + ChatColor.RED + "That is too expensive! "+ChatColor.GREEN + "You need "+difference + " more coins!");
+        		p.sendMessage(PLUGIN.prefix + ChatColor.RED + "That is too expensive! "+ChatColor.GREEN + "You need "+difference + " more coins!");
         	} else {
-        		p.sendMessage(prefix + ChatColor.RED + "That is too expensive! "+ChatColor.GREEN + "You need "+difference + " more coin!");
+        		p.sendMessage(PLUGIN.prefix + ChatColor.RED + "That is too expensive! "+ChatColor.GREEN + "You need "+difference + " more coin!");
         	}
         } else {
         	//Funds are sufficient
@@ -215,9 +214,9 @@ public class ShopHandle implements Listener {
 	        	p.playSound(p.getLocation(), Sound.ITEM_PICKUP, 1F, 1F);
 	        	Game.coins.put(p.getName(), Game.coins.get(p.getName()) - cost);
 	        	if (e.getCurrentItem().getItemMeta().hasDisplayName()) {
-	        		p.sendMessage(prefix + ChatColor.GREEN + "Succesfully purchased "+e.getCurrentItem().getItemMeta().getDisplayName()+ChatColor.GREEN + "!");	
+	        		p.sendMessage(PLUGIN.prefix + ChatColor.GREEN + "Succesfully purchased "+e.getCurrentItem().getItemMeta().getDisplayName()+ChatColor.GREEN + "!");	
 	        	} else {
-	        		p.sendMessage(prefix + ChatColor.GREEN + "Succesfully purchased "+item+ChatColor.GREEN + "!");
+	        		p.sendMessage(PLUGIN.prefix + ChatColor.GREEN + "Succesfully purchased "+item+ChatColor.GREEN + "!");
 	        	}
 	        	ScoreBoard.update(p);
         	}

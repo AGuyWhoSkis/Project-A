@@ -93,4 +93,64 @@ public class CleanUp extends BukkitRunnable {
         Game.teamRed.clear();
         Game.winnerIsLocked = false;
     }
+    
+    public static void runNoWinner() {
+        String winner = "";
+        WORLD.lastWorld = WORLD.map;
+        int bonusExp = 0;
+        int bonusCoins = 0;
+        for (Player p: Bukkit.getOnlinePlayers()) {
+        	        	
+            p.setDisplayName(p.getName());
+            
+            String team = "none";
+            if (Game.teamBlue.contains(p.getName())) {
+            	team = "blue";
+            } else if (Game.teamRed.contains(p.getName())) {
+            	team = "red";
+            }
+            if (team == winner) {
+            	bonusExp = 300;
+            	bonusCoins = 150;
+            } else {
+            	bonusExp = 150;
+            	bonusCoins = 75;
+            }
+			Game.coins.put(p.getName(), Game.coins.get(p.getName()) + bonusCoins);
+			Game.exp.put(p.getName(), Game.exp.get(p.getName()) + bonusExp);
+			
+			
+            Game.saveStat(p.getName(), 0, Game.exp.get(p.getName()));
+            Game.saveStat(p.getName(), 2, Game.kills.get(p.getName()));
+            Game.saveStat(p.getName(), 3, Game.assists.get(p.getName()));
+            Game.saveStat(p.getName(), 4, Game.deaths.get(p.getName()));
+            Game.saveStat(p.getName(), 5, 1);
+            Game.saveStat(p.getName(), 6, Game.coins.get(p.getName()));
+            
+            
+            p.sendMessage(ChatColor.RED + "~~~~~~~~~~ "+ChatColor.YELLOW + "Stats"+ChatColor.RED+" ~~~~~~~~~~");
+            p.sendMessage(ChatColor.GREEN + "Bonus Exp: "+ChatColor.GOLD + bonusExp);
+            p.sendMessage(ChatColor.GREEN + "Bonus Coins: "+ChatColor.GOLD + bonusCoins);
+            p.sendMessage(ChatColor.GREEN + "Total Exp: "+ChatColor.GOLD+ Game.getStat(p.getName(), 0));
+            p.sendMessage(ChatColor.GREEN + "Total Coins: "+ChatColor.GOLD+ Game.getStat(p.getName(), 6));
+            p.sendMessage(ChatColor.RED + "~~~~~~~~~~~~~~~~~~~~~~~~~");
+            
+            ScoreBoard.update(p);
+            p.getInventory().clear();
+            p.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
+            p.setHealth(20.0D);
+            
+        }
+        WORLD.blueCore.clear();
+        WORLD.redCore.clear();
+        WORLD.lastWorld = WORLD.map;
+        WORLD.unload(WORLD.map.getName());
+        WORLD.map = WORLD.main;
+        PLUGIN.gameMode = 0;
+
+        Game.winner = null;
+        Game.teamBlue.clear();
+        Game.teamRed.clear();
+        Game.winnerIsLocked = false;
+    }
 }
