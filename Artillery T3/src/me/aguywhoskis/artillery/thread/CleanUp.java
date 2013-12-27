@@ -70,8 +70,8 @@ public class CleanUp extends BukkitRunnable {
             p.sendMessage(ChatColor.RED + "~~~~~~~~~~ "+ChatColor.YELLOW + "Stats"+ChatColor.RED+" ~~~~~~~~~~");
             p.sendMessage(ChatColor.GREEN + "Bonus Exp: "+ChatColor.GOLD + bonusExp);
             p.sendMessage(ChatColor.GREEN + "Bonus Coins: "+ChatColor.GOLD + bonusCoins);
-            p.sendMessage(ChatColor.GREEN + "Total Exp: "+ChatColor.GOLD+ Game.getStat(p.getName(), 0));
-            p.sendMessage(ChatColor.GREEN + "Total Coins: "+ChatColor.GOLD+ Game.getStat(p.getName(), 6));
+            p.sendMessage(ChatColor.GREEN + "Total Exp: "+ChatColor.GOLD+ Game.getStatFromFile(p.getName(), 0));
+            p.sendMessage(ChatColor.GREEN + "Total Coins: "+ChatColor.GOLD+ Game.getStatFromFile(p.getName(), 6));
             p.sendMessage(ChatColor.RED + "~~~~~~~~~~~~~~~~~~~~~~~~~");
             
             ScoreBoard.update(p);
@@ -131,8 +131,8 @@ public class CleanUp extends BukkitRunnable {
             p.sendMessage(ChatColor.RED + "~~~~~~~~~~ "+ChatColor.YELLOW + "Stats"+ChatColor.RED+" ~~~~~~~~~~");
             p.sendMessage(ChatColor.GREEN + "Bonus Exp: "+ChatColor.GOLD + bonusExp);
             p.sendMessage(ChatColor.GREEN + "Bonus Coins: "+ChatColor.GOLD + bonusCoins);
-            p.sendMessage(ChatColor.GREEN + "Total Exp: "+ChatColor.GOLD+ Game.getStat(p.getName(), 0));
-            p.sendMessage(ChatColor.GREEN + "Total Coins: "+ChatColor.GOLD+ Game.getStat(p.getName(), 6));
+            p.sendMessage(ChatColor.GREEN + "Total Exp: "+ChatColor.GOLD+ Game.getStatFromFile(p.getName(), 0));
+            p.sendMessage(ChatColor.GREEN + "Total Coins: "+ChatColor.GOLD+ Game.getStatFromFile(p.getName(), 6));
             p.sendMessage(ChatColor.RED + "~~~~~~~~~~~~~~~~~~~~~~~~~");
             
             ScoreBoard.update(p);

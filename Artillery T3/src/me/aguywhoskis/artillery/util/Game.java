@@ -50,47 +50,51 @@ public class Game {
 			String world = WORLD.getRandomWorld();
 			WORLD.load(world);
 			WORLD.map = Bukkit.getWorld(world);
-				try {
-					try {
-					WORLD.redSpawn = WORLD.getLocFromFile(WORLD.map, "redspawn.loc");
-					WORLD.blueSpawn = WORLD.getLocFromFile(WORLD.map, "bluespawn.loc");
-					
-					Bukkit.getLogger().info("Loaded red spawn: "+WORLD.redSpawn);
-					Bukkit.getLogger().info("Loaded blue spawn: "+WORLD.blueSpawn);
-					} catch (NullPointerException e){
-					}
-					try {
-						for (int i:WORLD.getBeaconFiles(WORLD.map, "blue")) {
-							
-							Location loc = WORLD.getLocFromFile(WORLD.map, "bluecore"+i+".loc");
-							WORLD.blueCore.add(loc);
-							
-						}
-					} catch (NullPointerException npe) {}
-					try {
-						for (int i:WORLD.getBeaconFiles(WORLD.map, "red")) {
-							WORLD.redCore.add(WORLD.getLocFromFile(WORLD.map,  "redcore"+i+".loc"));
-						}
-					} catch (NullPointerException npe) {}
-				} catch (IOException e) {
-					Util.logSevere("An IOException occured. Unable to load files of ."+WORLD.map.getName());
-				}
 				
-				Timer.start();
-				Timer.update();
-			
+			try {
+				WORLD.redSpawn = WORLD.getLocFromFile(WORLD.map, "redspawn.loc");
+				WORLD.blueSpawn = WORLD.getLocFromFile(WORLD.map, "bluespawn.loc");
+				
+			} catch (IOException e) {
+				Util.logSevere("Unable to load spawns of "+WORLD.map.getName());
+				WORLD.redSpawn = null;
+				WORLD.blueSpawn = null;
+				return;
+						
+			}
+					
+			for (int i:WORLD.getBeaconFiles(WORLD.map, "blue")) {
+				try {
+					Location loc = WORLD.getLocFromFile(WORLD.map, "bluecore"+i+".loc");
+					WORLD.blueCore.add(loc);
+				} catch (IOException e) {
+					Util.logSevere("Unable to load location from bluecore"+i+".loc");
+				}
+							
+			}	
+					
+			for (int i:WORLD.getBeaconFiles(WORLD.map, "red")) {
+				try {
+					WORLD.redCore.add(WORLD.getLocFromFile(WORLD.map,  "redcore"+i+".loc"));
+				} catch (IOException e) {
+					Util.logSevere("Unable to load location from redcore"+i+".loc");
+				}
+			}
+				
+			Timer.start();
+			Timer.update();
 
             PLUGIN.canBuild = false;
             PLUGIN.canBuy = false;
             PLUGIN.canShoot = false;
             PLUGIN.canPvp = false;
-
 		}
 
         if (PLUGIN.gameMode == 1) {
             //Building
         	
         	Game.changeModeSim1();
+        	
         }
 
         if (PLUGIN.gameMode == 2) {
@@ -328,7 +332,7 @@ public class Game {
 		}
 	}
 	
-	public static int getStat(String player, int stat) {
+	public static int getStatFromFile(String player, int stat) {
 		File directory = new File(Artillery.plugin.getDataFolder(), "players");
 		File f = new File(directory, player+".txt");
 		try {

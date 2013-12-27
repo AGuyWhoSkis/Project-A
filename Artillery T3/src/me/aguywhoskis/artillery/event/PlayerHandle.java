@@ -216,12 +216,12 @@ public class PlayerHandle implements Listener {
 			}
 		}
 		if (!Game.assists.containsKey(p)) {
-        	Game.exp.put(p, Game.getStat(p, 0));
+        	Game.exp.put(p, Game.getStatFromFile(p, 0));
         	Game.kills.put(p, 0);
         	Game.assists.put(p, 0);
         	Game.deaths.put(p, 0);
         	Game.kills.put(p, 0);
-        	Game.coins.put(p, Game.getStat(p, 6));
+        	Game.coins.put(p, Game.getStatFromFile(p, 6));
         	if (Game.coins.get(p) == 0) {
         		Game.coins.put(p, 200);
         	}

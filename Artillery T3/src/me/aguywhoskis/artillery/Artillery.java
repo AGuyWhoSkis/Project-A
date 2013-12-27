@@ -22,6 +22,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 
@@ -56,12 +57,12 @@ public class Artillery extends JavaPlugin {
         framework.registerHelp();
         
         for (Player p: Bukkit.getOnlinePlayers()) {
-        	Game.exp.put(p.getName(), Game.getStat(p.getName(), 0));
+        	Game.exp.put(p.getName(), Game.getStatFromFile(p.getName(), 0));
         	Game.kills.put(p.getName(), 0);
         	Game.assists.put(p.getName(), 0);
         	Game.deaths.put(p.getName(), 0);
         	Game.kills.put(p.getName(), 0);
-        	Game.coins.put(p.getName(), Game.getStat(p.getName(), 6));
+        	Game.coins.put(p.getName(), Game.getStatFromFile(p.getName(), 6));
         	ScoreBoard.create(p);
 		}
         
@@ -113,7 +114,7 @@ public class Artillery extends JavaPlugin {
 		Bukkit.broadcastMessage("");
 	}
 
-	
+	//World
 	@me.aguywhoskis.artillery.framework.Command(name = "world", aliases = {"w"}, description = "Base command for map management", usage = "/world <setspawn:setcore:delcore> <red:blue>", permission = "artillery.admin.world")
     public void world(CommandArgs args) {
 		CommandSender sender = args.getSender();
@@ -128,6 +129,26 @@ public class Artillery extends JavaPlugin {
         
 	}
 	
+	@me.aguywhoskis.artillery.framework.Command(name = "world.setcore", description = "Adds a core location to the specified team.", usage = "/world setcore <red:blue>", permission = "artillery.admin.world.setcore")
+	public void worldSetcore(CommandArgs args) {
+		CommandSender sender = args.getSender();
+		if (!(sender instanceof Player)) {
+			wrongSender(sender);
+			return;
+		}
+		if (args.getArgs().length != 1) {
+			wrongArgNum(sender, 2);
+			return;
+		}
+		if (args.getArgs()[0].equalsIgnoreCase("red")|| args.getArgs()[0].equalsIgnoreCase("blue")) {
+			
+		}
+	}
+	
+	
+	
+	
+	//Game
 	@me.aguywhoskis.artillery.framework.Command(name = "game", aliases = {"g"}, description = "Base command for managing games", usage = "/game <start:stop:pause:resume>", permission = "artillery.admin.game")
     public void game(CommandArgs args) {
 		CommandSender sender = args.getSender();
@@ -141,6 +162,8 @@ public class Artillery extends JavaPlugin {
 		
 	}
 	
+	
+	//Game start
 	@me.aguywhoskis.artillery.framework.Command(name = "game.start", aliases = {"g.start"}, description = "Starts a game.", usage = "/game start", permission = "artillery.admin.game.start")
 	public void gameStart(CommandArgs args) {
 		CommandSender sender = args.getSender();
@@ -148,11 +171,16 @@ public class Artillery extends JavaPlugin {
 			sender.sendMessage(ChatColor.RED+"The game is already started!");
 			return;
 		}
+		if (PLUGIN.isPaused == true) {
+			sender.sendMessage(ChatColor.RED+"The game is paused. Please resume the game before starting.");
+			return;
+		}
 		PLUGIN.gameMode = 1;
 		Game.changeModeSim1();
 		Util.messageServer(PLUGIN.prefix+"&cThe game has been started by "+ChatColor.GOLD+sender.getName()+"&c!");
 	}
 	
+	//Game stop
 	@me.aguywhoskis.artillery.framework.Command(name = "game.stop", aliases = {"g.stop"}, description = "Stops a game.", usage = "/game stop", permission = "artillery.admin.game.stop")
 	public void gameStop(CommandArgs args) {
 		CommandSender sender = args.getSender();
@@ -165,12 +193,68 @@ public class Artillery extends JavaPlugin {
 		Util.messageServer(PLUGIN.prefix+"&cThe game has been stopped by "+ChatColor.GOLD+sender.getName()+"&c!");
 	}
 	
+	
+	//Game pause
 	@me.aguywhoskis.artillery.framework.Command(name = "game.pause", aliases = {"g.pause","game.p","g.p"}, description = "Pauses the timer", usage = "/game pause", permission = "artillery.admin.game.pause")
 	public void gamePause(CommandArgs args)  {
 		CommandSender sender = args.getSender();
+		if (PLUGIN.isPaused) {
+			sender.sendMessage("The game is already paused!");
+			return;
+		}
+		Timer.pause();
+		for (BukkitTask t:Bukkit.getScheduler().getPendingTasks()) {
+			Bukkit.broadcastMessage(""+t);
+			Class c = t.getClass();
+			
+		}
+	}
+	
+	//Game fakeupdate
+	@me.aguywhoskis.artillery.framework.Command(name = "game.fakeupdate",aliases = {"g.fu","game.fu","g.fakeupdate","game.timer"}, description = "Updates the pre-game timer with a fake number of players.",permission = "artillery.admin.game.fakeupdate")
+	public void gameFakeupdate(CommandArgs args) {
+		CommandSender sender = args.getSender();
+		Bukkit.broadcastMessage(args.getArgs().length+"");
+		if (!(args.getArgs().length == 1)) {
+			sender.sendMessage(ChatColor.RED+"Invalid arguments!");
+			game(null);
+			return;
+		}
+		int n = 0;
+		try {
+			n = Integer.parseInt(args.getArgs()[0]);
+		} catch (NumberFormatException e) {
+			sender.sendMessage(ChatColor.RED+"Invalid arguments! Use a whole number for argument 2.");
+			return;
+		}
+		Timer.update(n);
+	}
+	
+	//Game resume
+	@me.aguywhoskis.artillery.framework.Command(name = "game.resume", aliases = {"game.unpause","game.r","g.r","g.u"}, description = "Pauses the timer", usage = "/game pause", permission = "artillery.admin.game.pause")
+	public void gameResume(CommandArgs args)  {
+		CommandSender sender = args.getSender();
+		PLUGIN.pendingTasks = Bukkit.getScheduler().getPendingTasks();
+		BukkitTask task = PLUGIN.pendingTasks.get(0);
+		for (BukkitTask t:PLUGIN.pendingTasks) {
+
+		}
 	}
 	
 	
+	
+	
+	public static void wrongSender(CommandSender sender) {
+		sender.sendMessage("You must be a player to do that.");
+	}
+	
+	public static void wrongArgType(CommandSender sender, String wrongArg, String expectedArg) {
+		sender.sendMessage(ChatColor.RED+"Invalid argument, \""+wrongArg+"\", "+expectedArg+" expected.");
+	}
+	
+	public static void wrongArgNum(CommandSender sender, int n) {
+		sender.sendMessage("Invalid arguments, "+n+" args expected.");
+	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		return framework.handleCommand(sender, label, cmd, args);
