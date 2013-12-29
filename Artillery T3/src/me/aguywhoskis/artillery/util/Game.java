@@ -262,7 +262,8 @@ public class Game {
 					Bukkit.getLogger().info("Teleported "+p.getName()+" to "+WORLD.redSpawn);
 				}
 			} catch (NullPointerException npe) {
-				Bukkit.broadcastMessage(ChatColor.RED + "Spawns for that world are not fully set.");
+				Bukkit.broadcastMessage(ChatColor.RED + "Spawns for the world "+WORLD.map.getName()+" are not set.");
+				Game.stop();
 			}
 			Game.assists.put(p.getName(), 0);
 			Game.kills.put(p.getName(), 0);
@@ -360,7 +361,7 @@ public class Game {
 	
 	//Used to lock out any other team from winning after someone wins; it would be otherwise possible to destroy the other team's core 
 	//block after they had destroyed yours. (There is a delay between when the game restarts and when a team wins)
-	public static boolean winnerIsLocked;
+	public static boolean winnerIsLocked = false;
 	
 	public static void setWinner(String side) {
 		if (!winnerIsLocked) {

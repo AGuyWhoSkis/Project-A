@@ -78,7 +78,7 @@ public class TNTManager implements Listener {
 					int typeData = tnt.getMetadata("typeData").get(0).asInt();
 					Location source = new Location(Bukkit.getWorld(tnt.getMetadata("sourceworld").get(0).asString()), tnt.getMetadata("sourcex").get(0).asInt(), tnt.getMetadata("sourcey").get(0).asInt(), tnt.getMetadata("sourcez").get(0).asInt());
 					String turretOwner = TNTManager.registeredLaunchers.get(source);
-					// Label A1
+					//label A1
 					for (Entity en : tnt.getNearbyEntities(8, 8, 8)) {
 						if (en instanceof Player) {
 							Player vic = (Player) en;

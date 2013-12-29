@@ -35,9 +35,11 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.Plugin;
@@ -195,10 +197,18 @@ public class PlayerHandle implements Listener {
 		 }
 	}
 
-	private String objPrefix = (ChatColor.BLACK+"["+ChatColor.DARK_GREEN+"Objective"+ChatColor.BLACK+"] "+ChatColor.RESET);
+	@EventHandler
+	public void onlogin (PlayerLoginEvent e) {
+		if (e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) {
+		    if (e.getPlayer().isWhitelisted() || e.getPlayer().isOp()) {
+		    	e.allow();
+		    }
+		}
+	}
 	
 	@EventHandler
 	public void addPlayer(PlayerJoinEvent e) {
+		
 		String p = e.getPlayer().getName();
 		File directory = new File(myplugin.getDataFolder(), "players");
 		directory.mkdir();
@@ -230,11 +240,6 @@ public class PlayerHandle implements Listener {
 		Player pl = e.getPlayer();
 		ScoreBoard.create(pl);
 		
-		
-
-		
-		
-		
 		if (PLUGIN.gameMode != 1) {
 			if (!Game.teamBlue.contains(p) && !Game.teamRed.contains(p)) {
 				Game.assignTeam(pl);
@@ -254,17 +259,17 @@ public class PlayerHandle implements Listener {
 			}
 			if (PLUGIN.gameMode == 1) {
 				//lobby
-				pl.sendMessage(objPrefix + ChatColor.GREEN + "The game will start shortly.");
+				pl.sendMessage(PLUGIN.prefix + ChatColor.GREEN + "The game will start shortly.");
 			} else {
 				if (PLUGIN.gameMode == 2) {
 				// building
-				pl.sendMessage(objPrefix + ChatColor.GREEN+ "Set up defences and prevent the other team from destroying your core!");
+				pl.sendMessage(PLUGIN.prefix + ChatColor.GREEN+ "Set up defences and prevent the other team from destroying your core!");
 			} else if (PLUGIN.gameMode == 3) {
 				//battling
-				pl.sendMessage(objPrefix + ChatColor.GREEN+ "Destroy the other team's core!");
+				pl.sendMessage(PLUGIN.prefix + ChatColor.GREEN+ "Destroy the other team's core!");
 			} else if (PLUGIN.gameMode == 4) {
 				//restarting
-				pl.sendMessage(objPrefix + ChatColor.GREEN+ "The game is over.");
+				pl.sendMessage(PLUGIN.prefix + ChatColor.GREEN+ "The game is over.");
 				}
 			}
 		
@@ -282,6 +287,13 @@ public class PlayerHandle implements Listener {
 		}
 	}
 
+	@EventHandler
+	public void onTp(PlayerTeleportEvent e) {
+		if (e.getTo().getWorld().equals(e.getFrom().getWorld())) {
+			
+		}
+	}
+	
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e) {
 		e.setDroppedExp(0);
@@ -474,11 +486,13 @@ public class PlayerHandle implements Listener {
 			e.getPlayer().teleport(e.getFrom());
 			e.getPlayer().sendMessage(ChatColor.RED + "An invisible barrier stops you.");
 		}
-		if (borderPlayerList.contains(e.getPlayer().getName())) {
-			Location current = e.getPlayer().getLocation();
-			current.setY(0);
-			Block b = e.getPlayer().getWorld().getBlockAt(current);
-			b.setType(Material.SPONGE);
+		if (borderPlayerList.size() > 0) {
+			if (borderPlayerList.contains(e.getPlayer().getName())) {
+				Location current = e.getPlayer().getLocation();
+				current.setY(0);
+				Block b = e.getPlayer().getWorld().getBlockAt(current);
+				b.setType(Material.SPONGE);
+			}
 		}
 	}
 
@@ -516,7 +530,7 @@ public class PlayerHandle implements Listener {
 	public void onCommand(ServerCommandEvent e) {
 		String cmd = e.getCommand();
 		if (cmd.contains("save-on") || cmd.contains("save-all")) {
-			e.getSender().sendMessage("Please use the in game command '/a save' instead.");
+			e.getSender().sendMessage("Please use the in game command '/world save' instead.");
 			e.setCommand("");
 		}
 	}

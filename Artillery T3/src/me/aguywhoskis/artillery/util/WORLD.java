@@ -169,10 +169,17 @@ public class WORLD {
     	return 1;
     }
     
+    public static boolean coreExists(World w, String side, int n) {
+    	ArrayList<Integer> ints = getBeaconFiles(w, side);
+    	if (ints.contains(n)) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
     
     public static void delCore(World w, String side, int num) throws NullPointerException {
-    	ArrayList<Integer> ints = getBeaconFiles(w, side);
-    	if (ints.contains(num)) {
+    	if (coreExists(w, side, num)) {
     		File f = new File (w.getWorldFolder(), side+"core"+num+".loc");
     		f.delete();
     	} else throw new NullPointerException("That file does not exist");

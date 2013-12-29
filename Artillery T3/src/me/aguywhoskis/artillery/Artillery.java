@@ -14,22 +14,26 @@ import me.aguywhoskis.artillery.util.TNTManager;
 import me.aguywhoskis.artillery.util.Util;
 import me.aguywhoskis.artillery.util.WORLD;
 
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class Artillery extends JavaPlugin {
 	
-    /** * Your plugin's command framework object. */
     CommandFramework framework;
     
     public static Plugin plugin;
@@ -65,21 +69,9 @@ public class Artillery extends JavaPlugin {
         	Game.coins.put(p.getName(), Game.getStatFromFile(p.getName(), 6));
         	ScoreBoard.create(p);
 		}
-        
-		/**
-		 * 0: Exp
-		 * 1: Level
-		 * 2: Kills
-		 * 3: Assists
-		 * 4: Deaths
-		 * 5: Games
-		 * 6: Coins
-		 **/
-        
+                
         Util.initIs();
         ShopHandle.initIs();
-        Game.winnerIsLocked = false;
-        //ScoreBoard.updateAll();
         
         for (World w:Bukkit.getWorlds()) {
         	w.setAutoSave(false);
@@ -95,7 +87,9 @@ public class Artillery extends JavaPlugin {
 		
 		for (Player p:Bukkit.getServer().getOnlinePlayers()) {
 			p.setDisplayName(p.getName());
-			p.teleport(WORLD.mainSpawn);
+			if (!p.getWorld().equals(WORLD.main)) {
+				p.teleport(WORLD.mainSpawn);
+			}
 			p.getInventory().clear();
 		}
 		
@@ -114,42 +108,225 @@ public class Artillery extends JavaPlugin {
 		Bukkit.broadcastMessage("");
 	}
 
-	//World
-	@me.aguywhoskis.artillery.framework.Command(name = "world", aliases = {"w"}, description = "Base command for map management", usage = "/world <setspawn:setcore:delcore> <red:blue>", permission = "artillery.admin.world")
+	//Cmd_World*
+	@me.aguywhoskis.artillery.framework.Command(name = "world", description = "Base command for map management", usage = "/world <setspawn:setcore:delcore> <red:blue>", permission = "artillery.admin.world.world")
     public void world(CommandArgs args) {
 		CommandSender sender = args.getSender();
-		
         sender.sendMessage(ChatColor.GOLD+"-----"+ChatColor.DARK_AQUA+" All "+ChatColor.GOLD+"/world"+ChatColor.DARK_AQUA+" subcommands "+ChatColor.GOLD+"-----");
         sender.sendMessage(ChatColor.GOLD+"/world setcore <red:blue>"+ChatColor.DARK_AQUA+": Saves the location below you as a core location");
         sender.sendMessage(ChatColor.GOLD+"/world delcore <red:blue> <core number>"+ChatColor.DARK_AQUA+": Deletes the specified core block");
-        sender.sendMessage(ChatColor.GOLD+"/world setspawn <red:blue>"+ChatColor.DARK_AQUA+": Saves your current location as the spawn location for the specified team.");
-        sender.sendMessage(ChatColor.GOLD+"/world delspawn <red:blue>"+ChatColor.DARK_AQUA+": Deletes the spawn location of the specified team.");
-        sender.sendMessage(ChatColor.GOLD+"/world border"+ChatColor.DARK_AQUA+": Toggles border construction mode, placing sponges at your x and z coordinates, but at y=0");
+        sender.sendMessage(ChatColor.GOLD+"/world setspawn <red:blue>"+ChatColor.DARK_AQUA+": Saves your current location as the spawn for the specified team.");
+        sender.sendMessage(ChatColor.GOLD+"/world border"+ChatColor.DARK_AQUA+": Toggles border construction mode, placing sponges at y = 0 underneath you.");
+        sender.sendMessage(ChatColor.GOLD+"/world <world>"+ChatColor.DARK_AQUA+": Teleports you to the specified world.");
+        sender.sendMessage(ChatColor.GOLD+"/worlds"+ChatColor.DARK_AQUA+": Lists all valid worlds");
         sender.sendMessage(ChatColor.GOLD+"------------------------------");
-        
 	}
 	
+	//Cmd_Worlds
+	@me.aguywhoskis.artillery.framework.Command(name = "worlds", description = "Lists all valid worlds.", usage = "/worlds", permission = "artillery.admin.world.worlds")
+	public void worlds(CommandArgs args) {
+		CommandSender sender = args.getSender();
+		ArrayList<String> list = WORLD.getAllWorlds();
+		sender.sendMessage(ChatColor.GREEN+"All valid worlds:");
+		for (String s:list) {
+			sender.sendMessage(ChatColor.RED + s);
+		}
+	}
+	
+	//Cmd_WorldBorder
+	@me.aguywhoskis.artillery.framework.Command(name = "world.border", description = "Toggles border construction mode", usage = "/world border", permission = "artillery.admin.world.border")
+	public void worldBorder(CommandArgs args) {
+		CommandSender sender = args.getSender();
+		if (checkArgs(sender, args.getArgs(), null, true) == false) {
+			return;
+		}
+		String p = sender.getName();
+		if (PlayerHandle.borderPlayerList.contains(p)) {
+			PlayerHandle.borderPlayerList.remove(p);
+			sender.sendMessage(ChatColor.GREEN + "Border mode disabled.");
+		} else {
+			PlayerHandle.borderPlayerList.add(p);
+			sender.sendMessage(ChatColor.GREEN + "Border mode enabled.");
+		}
+	}
+	
+	//Cmd_WorldTeleport
+	@me.aguywhoskis.artillery.framework.Command(name = "world.teleport", aliases = {"world.tp","w.tp","w.teleport"}, description = "Teleports you to the specified world", usage = "/world teleport <world>", permission = "artillery.admin.world.teleport")
+	public void worldTeleport(CommandArgs args) {
+		CommandSender sender = args.getSender();
+		if (checkArgs(sender, args.getArgs(), null, true) == false) {
+			return;
+		}
+		
+		String name = "";
+		for (int i = 0; i < args.getArgs().length; i++) {
+			name = name + args.getArgs()[i] + " ";
+		}
+		name = name.trim();
+		Player p = (Player) sender;
+		if (WORLD.isValid(name)) {
+			WORLD.load(name);
+			p.sendMessage(ChatColor.GREEN + "Teleporting to map \""+name+"\"...");
+			p.teleport(Bukkit.getWorld(name).getSpawnLocation());							
+		} else {
+			p.sendMessage(ChatColor.RED+"The world \""+name+"\" does not exist.");
+		}
+	}
+	
+	//Cmd_WorldSetcore
 	@me.aguywhoskis.artillery.framework.Command(name = "world.setcore", description = "Adds a core location to the specified team.", usage = "/world setcore <red:blue>", permission = "artillery.admin.world.setcore")
 	public void worldSetcore(CommandArgs args) {
+		
 		CommandSender sender = args.getSender();
-		if (!(sender instanceof Player)) {
-			wrongSender(sender);
+		if (checkArgs(sender, args.getArgs(), new Class[] {String.class}, true) == false) {
 			return;
 		}
-		if (args.getArgs().length != 1) {
-			wrongArgNum(sender, 2);
+		
+		Player p = (Player) sender;
+		String team = args.getArgs()[0];
+		
+		if (!(team.equalsIgnoreCase("blue")) && !(team.equalsIgnoreCase("red"))) {
+			p.sendMessage(ChatColor.RED+"Please specify which team; red or blue.");
+			return;
+		}	
+		
+		
+		if (p.getWorld() == WORLD.main) {
+			p.sendMessage(ChatColor.RED+"You can't do that in the main world.");
 			return;
 		}
-		if (args.getArgs()[0].equalsIgnoreCase("red")|| args.getArgs()[0].equalsIgnoreCase("blue")) {
-			
+		
+		try {
+			Location loc = Util.roundLoc(p.getLocation());
+			loc.setY(loc.getY()-1);
+			if (loc.getBlock().getType().equals(Material.BEACON)) {
+				int i = WORLD.getAvailBeaconFileName(loc.getWorld(), team);
+				WORLD.saveLocToFile(loc, team+"core"+i+".loc");
+				p.sendMessage(ChatColor.GREEN+"Saved location as: "+team+"core"+i+".loc");
+			} else {
+				p.sendMessage(ChatColor.RED+"You must be standing on a beacon to do that.");
+			}
+		} catch (IOException e) {
+			p.sendMessage(ChatColor.RED + "An error occured when saving the "+team+" core. Please try again.");
+			e.printStackTrace();
 		}
 	}
 	
+	//Cmd_WorldSetspawn
+	@me.aguywhoskis.artillery.framework.Command(name = "world.setspawn", description = "Sets the spawn of the specified team.", usage = "/world setspawn <red:blue>", permission = "artillery.admin.world.setspawn")
+	public void worldSetspawn(CommandArgs args) {
+		CommandSender sender = args.getSender();
+		if (checkArgs(sender, args.getArgs(), new Class[] {String.class}, true) == false) {
+			return;
+		}
+		Player p = (Player) sender;
+		String team = args.getArgs()[0];
+		if (!(team.equalsIgnoreCase("blue")) && !(team.equalsIgnoreCase("red"))) {
+			p.sendMessage(ChatColor.RED+"Please specify which team; red or blue.");
+			return;
+		}
+		if (!p.getWorld().equals(WORLD.main)) {
+			p.sendMessage(ChatColor.RED+"You can't do that in the main world.");
+		}
+
+		try {
+			team = team.toLowerCase();
+			WORLD.saveLocToFile(p.getLocation(), team+"spawn.loc");
+			team = WordUtils.capitalize(team);
+			p.sendMessage(ChatColor.GREEN+team+" spawn saved succesfully.");
+		} catch (IOException e) {
+			p.sendMessage(ChatColor.RED + "An error occured when setting the "+team.toLowerCase()+" spawn.");
+		}
+	}
 	
+	//Cmd_WorldSave
+	@me.aguywhoskis.artillery.framework.Command(name = "world.save", aliases = {"world.s"},description = "Saves the world you are currently in.", usage = "/world save", permission = "artillery.admin.world.save")
+	public void worldSave(CommandArgs args) {
+		CommandSender sender = args.getSender();
+		
+		if (checkArgs(sender, args.getArgs(), null, false) == false) {
+			return;
+		}
+		World w = null;
+		if (sender instanceof Player) {
+			w = ((Player) sender).getWorld();
+		} else {
+			String name = "";
+			for (int i = 0; i < args.getArgs().length; i++) {
+				name = name + args.getArgs()[i] + " ";
+			}
+			name = name.trim();
+			if (WORLD.isValid(name)) {
+				w = Bukkit.getWorld(name);
+			} else {
+				sender.sendMessage(ChatColor.RED+"The world \""+name+"\" does not exist.");
+				return;
+			}
+		}
+		if (WORLD.map.equals(w)) {
+			sender.sendMessage(ChatColor.RED+"You can't do that if the game is running in world \""+w.getName()+"\".");
+			return;
+		}
+		w.save();
+		for (Player p:Bukkit.getOnlinePlayers()) {
+			if (p.isOp()) {
+				p.sendMessage(ChatColor.GRAY+sender.getName()+" saved world \""+w.getName()+"\".");
+			}
+		}
+		sender.sendMessage(ChatColor.GREEN+"Saved world \""+w.getName()+"\" succesfully.");
+	}
 	
+	//Cmd_WorldDelcore
+	@me.aguywhoskis.artillery.framework.Command(name = "world.delcore", description = "Deletes a core location of the specified team.", usage = "/world delcore <red:blue> <core number>", permission = "artillery.admin.world.delcore")
+	public void worldDelcore(CommandArgs args) {
+		CommandSender sender = args.getSender();
+		World w = null;
+		int num;
+		String team;
+		if (sender instanceof Player) {
+			if (checkArgs(sender, args.getArgs(), new Class[] {String.class, Integer.class}, true) == false) {
+				return;
+			}
+			
+			Player p = (Player) sender;
+			w = p.getWorld();
+			num = Integer.parseInt(args.getArgs()[1]);
+			team = args.getArgs()[0];
+			
+		} else {
+			if (checkArgs(sender, args.getArgs(), new Class[] {String.class, Integer.class, String.class}, false) == false) {
+				return;
+			}
+
+			String name = "";
+			for (int i = 2; i < args.getArgs().length; i++) {
+				name = name + args.getArgs()[i] + " ";
+			}
+			name = name.trim();
+			w = Bukkit.getWorld(name);
+			team = args.getArgs()[0];
+			num = Integer.parseInt(args.getArgs()[1]);
+				
+		}
+		if (!(team.equalsIgnoreCase("blue")) && !(team.equalsIgnoreCase("red"))) {
+			sender.sendMessage(ChatColor.RED+"Please specify which team; red or blue.");
+			return;
+		}
+		if (!WORLD.isValid(w.getName())) {
+			sender.sendMessage(ChatColor.RED+"The world \""+w.getName()+"\" does not exist.");
+			return;
+		}
+			
+		if (!WORLD.coreExists(w, team, num)) {
+			sender.sendMessage(ChatColor.RED+"Core #"+num+" does not exist in world \""+w.getName()+"\".");
+			return;
+		}
+		WORLD.delCore(w, team, num);
+		sender.sendMessage(ChatColor.GREEN+"Deleted "+args.getArgs()[0]+" core #"+num+".");
+	}
 	
-	//Game
-	@me.aguywhoskis.artillery.framework.Command(name = "game", aliases = {"g"}, description = "Base command for managing games", usage = "/game <start:stop:pause:resume>", permission = "artillery.admin.game")
+	//Cmd_Game*
+	@me.aguywhoskis.artillery.framework.Command(name = "game", aliases = {"g"}, description = "Base command for managing games", usage = "/game <start:stop:pause:resume>", permission = "artillery.admin.game.game")
     public void game(CommandArgs args) {
 		CommandSender sender = args.getSender();
 		
@@ -162,11 +339,23 @@ public class Artillery extends JavaPlugin {
 		
 	}
 	
+	//Cmd_GameSkip
+	@me.aguywhoskis.artillery.framework.Command(name = "game.skip", aliases = "game.s", description = "Skips the current timer.", usage = "/game skip", permission = "artillery.admin.game.skip")
+	public void gameSkip(CommandArgs args) {
+		CommandSender sender = args.getSender();
+		Bukkit.getScheduler().cancelTasks(plugin);
+		Game.changeMode();
+		Bukkit.broadcastMessage(ChatColor.GOLD+sender.getName() +ChatColor.GREEN+" has skipped the timer.");
+	}
 	
-	//Game start
+	//Cmd_GameStart
 	@me.aguywhoskis.artillery.framework.Command(name = "game.start", aliases = {"g.start"}, description = "Starts a game.", usage = "/game start", permission = "artillery.admin.game.start")
 	public void gameStart(CommandArgs args) {
 		CommandSender sender = args.getSender();
+		if (checkArgs(sender, args.getArgs(), null, false) == false) {
+			return;
+		}
+		
 		if (PLUGIN.started) {
 			sender.sendMessage(ChatColor.RED+"The game is already started!");
 			return;
@@ -180,10 +369,13 @@ public class Artillery extends JavaPlugin {
 		Util.messageServer(PLUGIN.prefix+"&cThe game has been started by "+ChatColor.GOLD+sender.getName()+"&c!");
 	}
 	
-	//Game stop
+	//Cmd_GameStop
 	@me.aguywhoskis.artillery.framework.Command(name = "game.stop", aliases = {"g.stop"}, description = "Stops a game.", usage = "/game stop", permission = "artillery.admin.game.stop")
 	public void gameStop(CommandArgs args) {
 		CommandSender sender = args.getSender();
+		if (checkArgs(sender, args.getArgs(), null, false) == false) {
+			return;
+		}
 		if (PLUGIN.gameMode == 0) {
 			sender.sendMessage("The game is not running. Use /game pause to stop just the timer.");
 			return;
@@ -193,67 +385,91 @@ public class Artillery extends JavaPlugin {
 		Util.messageServer(PLUGIN.prefix+"&cThe game has been stopped by "+ChatColor.GOLD+sender.getName()+"&c!");
 	}
 	
-	
-	//Game pause
+	//Cmd_GamePause
 	@me.aguywhoskis.artillery.framework.Command(name = "game.pause", aliases = {"g.pause","game.p","g.p"}, description = "Pauses the timer", usage = "/game pause", permission = "artillery.admin.game.pause")
 	public void gamePause(CommandArgs args)  {
 		CommandSender sender = args.getSender();
+		if (checkArgs(sender, args.getArgs(), null, false) == false) {
+			return;
+		}
 		if (PLUGIN.isPaused) {
 			sender.sendMessage("The game is already paused!");
 			return;
 		}
-		Timer.pause();
-		for (BukkitTask t:Bukkit.getScheduler().getPendingTasks()) {
-			Bukkit.broadcastMessage(""+t);
-			Class c = t.getClass();
-			
+		if (PLUGIN.gameMode == 0) {
+			Timer.pause();
+		} else {
+			Bukkit.getScheduler().cancelTasks(plugin);
+			Util.messageServer(PLUGIN.prefix+"The timer has been paused by "+sender.getName()+"!");
 		}
+		
+	}
+
+	//Cmd_GameResume
+	@me.aguywhoskis.artillery.framework.Command(name = "game.resume", aliases = {"game.unpause","game.r","g.r","g.u"}, description = "Pauses the timer", usage = "/game pause", permission = "artillery.admin.game.pause")
+	public void gameResume(CommandArgs args)  {
+		PLUGIN.gameMode -= 1;
+		Game.changeMode();
 	}
 	
-	//Game fakeupdate
+	
+	//Cmd_GameFakeupdate
 	@me.aguywhoskis.artillery.framework.Command(name = "game.fakeupdate",aliases = {"g.fu","game.fu","g.fakeupdate","game.timer"}, description = "Updates the pre-game timer with a fake number of players.",permission = "artillery.admin.game.fakeupdate")
 	public void gameFakeupdate(CommandArgs args) {
 		CommandSender sender = args.getSender();
 		Bukkit.broadcastMessage(args.getArgs().length+"");
-		if (!(args.getArgs().length == 1)) {
-			sender.sendMessage(ChatColor.RED+"Invalid arguments!");
-			game(null);
+		if (checkArgs(sender, args.getArgs(), new Class[] {Integer.class}, false) == false) {
 			return;
 		}
-		int n = 0;
-		try {
-			n = Integer.parseInt(args.getArgs()[0]);
-		} catch (NumberFormatException e) {
-			sender.sendMessage(ChatColor.RED+"Invalid arguments! Use a whole number for argument 2.");
-			return;
-		}
+		int n = Integer.parseInt(args.getArgs()[0]);
 		Timer.update(n);
+		sender.sendMessage(ChatColor.GREEN+"Updated.");
 	}
 	
-	//Game resume
-	@me.aguywhoskis.artillery.framework.Command(name = "game.resume", aliases = {"game.unpause","game.r","g.r","g.u"}, description = "Pauses the timer", usage = "/game pause", permission = "artillery.admin.game.pause")
-	public void gameResume(CommandArgs args)  {
-		CommandSender sender = args.getSender();
-		PLUGIN.pendingTasks = Bukkit.getScheduler().getPendingTasks();
-		BukkitTask task = PLUGIN.pendingTasks.get(0);
-		for (BukkitTask t:PLUGIN.pendingTasks) {
-
+	@SuppressWarnings("rawtypes")
+	public static boolean checkArgs(CommandSender sender, String[] args, Class[] argTypes, boolean senderIsPlayer) {
+		if (senderIsPlayer && !(sender instanceof Player)) {
+			sender.sendMessage("You must be a player to do that.");
+			return false;
 		}
-	}
+		if (argTypes != null) {
+			
+			if (args.length < argTypes.length) {
+				sender.sendMessage(ChatColor.RED+"Invalid arguments, "+(argTypes.length-args.length)+" more argument(s) expected.");
+				return false;
+			}	
+			
+			ArrayList<Class> baseTypes = new ArrayList<Class>(Arrays.asList(argTypes));
+			ArrayList<Class> inTypes = new ArrayList<Class>();
+			
+			//Add all argument "types" (String, double, integer) to an arraylist:
+			for (String s: args) {
+				Class type = String.class;
+				try {
+					Integer.parseInt(s);
+					type = Integer.class;
+				} catch (NumberFormatException e) {
+					try {
+						Double.parseDouble(s);
+						type = Double.class;
+					} catch (NumberFormatException nfe) {
 	
-	
-	
-	
-	public static void wrongSender(CommandSender sender) {
-		sender.sendMessage("You must be a player to do that.");
-	}
-	
-	public static void wrongArgType(CommandSender sender, String wrongArg, String expectedArg) {
-		sender.sendMessage(ChatColor.RED+"Invalid argument, \""+wrongArg+"\", "+expectedArg+" expected.");
-	}
-	
-	public static void wrongArgNum(CommandSender sender, int n) {
-		sender.sendMessage("Invalid arguments, "+n+" args expected.");
+					}
+				}
+				inTypes.add(type);
+			}
+			
+			//check 
+			for (int i=0; i<baseTypes.size(); i++) {
+				if (inTypes.size() >= baseTypes.size()) {
+					if (baseTypes.get(i) != inTypes.get(i)) {
+						sender.sendMessage(ChatColor.RED+"Invalid argument, \""+args[i]+"\", "+baseTypes.get(i).getSimpleName()+" expected.");
+						return false;
+					}
+				}
+			}
+		}
+		return true;
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
